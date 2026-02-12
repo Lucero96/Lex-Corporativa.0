@@ -1,33 +1,44 @@
-import { newsData } from '../data';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../supabaseClient';
 import './Noticias.css';
 
 const Noticias = () => {
-  return (
-    <div className="page-content">
-      <div className="container">
-        <div className="page-header">
-          <div>
-            <div className="section-label">ACTUALIDAD JURÍDICA</div>
-            <h1 className="page-title">Noticias</h1>
-          </div>
-        </div>
+  const [publicaciones, setPublicaciones] = useState([]);
 
-        <div className="news-grid-full">
-          {newsData.map((news, index) => (
-            <article key={news.id} className="news-card" style={{ animationDelay: `${index * 0.1}s` }}>
-              <div className="news-image">
-                <img src={news.image} alt={news.title} />
-                <div className="news-badge">{news.badge}</div>
-              </div>
-              <div className="news-content">
-                <div className="news-date">{news.date}</div>
-                <h3 className="news-title">{news.title}</h3>
-                <p className="news-excerpt">{news.excerpt}</p>
-                <button className="read-more">Leer más →</button>
-              </div>
-            </article>
-          ))}
-        </div>
+  useEffect(() => {
+    const fetchPublicaciones = async () => {
+      const { data, error } = await supabase
+        .from('publicaciones')
+        .select('*')
+        .eq('tipo', 'noticia');
+
+      if (error) {
+        console.error('Error fetching publicaciones:', error);
+      } else {
+        setPublicaciones(data);
+      }
+    };
+
+    fetchPublicaciones();
+  }, []);
+
+  return (
+    <div className="noticias-container">
+      <h1>Noticias</h1>
+      <div className="noticias-list">
+        {publicaciones.map((pub) => (
+          <div key={pub.id} className="noticia-item">
+            <h2>{pub.titulo}</h2>
+            <p>{pub.escritores}</p>
+            <p>{new Date(pub.fecha).toLocaleDateString()}</p>
+            {pub.imagen_url && <img src={pub.imagen_url} alt={pub.titulo} />}
+            {pub.documento_url && (
+              <a href={pub.documento_url} target="_blank" rel="noopener noreferrer">
+                Ver Documento
+              </a>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );

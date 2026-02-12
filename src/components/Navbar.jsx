@@ -18,8 +18,17 @@ const Navbar = ({ currentPage, onNavigate }) => {
       <div className="container">
         <div className="navbar-content">
           <div className="logo-container" onClick={() => onNavigate('home')}>
-            <div className="logo-circle">LC</div>
-            <div className="logo-text">LEX CORPORATIVA</div>
+            <div className="logo-circle">
+              <img
+                src="/assets/logo.png"
+                alt="Lex Corporativa Logo"
+                className="logo-image"
+              />
+            </div>
+            <div className="logo-text">
+              <span className="logo-text-main">LEX</span>
+              <span className="logo-text-sub">CORPORATIVA</span>
+            </div>
           </div>
 
           <div className="nav-links">
@@ -47,6 +56,20 @@ const Navbar = ({ currentPage, onNavigate }) => {
             >
               Nosotros
             </button>
+            <li className="nav-item" style={{ listStyle: 'none' }}>
+              <button
+                className={currentPage === 'contacto' ? 'active' : ''}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const footer = document.getElementById('footer');
+                  if (footer) {
+                    footer.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
+                Contacto
+              </button>
+            </li>
           </div>
         </div>
       </div>
