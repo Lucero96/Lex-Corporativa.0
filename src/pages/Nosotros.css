@@ -1,0 +1,204 @@
+/* ========== PAGE LAYOUT ========== */
+.page-content {
+  min-height: 100vh;
+  padding: 8rem 0 6rem;
+}
+
+.page-header {
+  margin-bottom: 5rem;
+  border-bottom: 1px solid rgba(232, 220, 196, 0.1);
+  padding-bottom: 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #E8DCC4;
+}
+
+/* ========== ABOUT CONTENT ========== */
+.about-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.about-section {
+  margin-bottom: 4rem;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.about-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #E8DCC4;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #80cc66;
+  display: inline-block;
+}
+
+.about-text {
+  color: rgba(232, 220, 196, 0.8);
+  font-size: 1.125rem;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+/* ========== FEATURES GRID ========== */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  background: linear-gradient(to bottom right, #0B0332, #0a0520);
+  padding: 2rem;
+  border: 1px solid rgba(232, 220, 196, 0.1);
+  transition: all 0.5s;
+}
+
+.feature-card:hover {
+  border-color: rgba(128, 204, 102, 0.5);
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.feature-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #E8DCC4;
+  margin-bottom: 0.75rem;
+}
+
+.feature-desc {
+  color: rgba(232, 220, 196, 0.6);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* ========== VALUES LIST ========== */
+.values-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.value-item {
+  padding-left: 2rem;
+  border-left: 3px solid #80cc66;
+}
+
+.value-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #E8DCC4;
+  margin-bottom: 0.5rem;
+}
+
+.value-desc {
+  color: rgba(232, 220, 196, 0.7);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* ========== CONTACT SECTION ========== */
+.contact-section {
+  background: linear-gradient(to bottom right, #0B0332, #0a0520);
+  padding: 3rem;
+  border: 1px solid rgba(232, 220, 196, 0.2);
+  margin-top: 4rem;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(232, 220, 196, 0.1);
+}
+
+.contact-item {
+  color: rgba(232, 220, 196, 0.8);
+  font-size: 1rem;
+}
+
+.contact-item strong {
+  color: #80cc66;
+  margin-right: 0.5rem;
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1024px) {
+  .page-title {
+    font-size: 2.5rem;
+  }
+
+  .about-heading {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-content {
+    padding: 7rem 0 4rem;
+  }
+
+  .page-header {
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .about-heading {
+    font-size: 1.5rem;
+  }
+
+  .about-text {
+    font-size: 1rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-section {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-content {
+    max-width: 100%;
+  }
+}
