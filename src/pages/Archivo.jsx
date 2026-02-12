@@ -1,32 +1,48 @@
-import { publicationsData } from '../data';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../supabaseClient';
 import './Archivo.css';
 
 const Archivo = () => {
-  return (
-    <div className="page-content">
-      <div className="container">
-        <div className="page-header">
-          <div>
-            <div className="section-label">BIBLIOTECA DIGITAL</div>
-            <h1 className="page-title">Archivo de Publicaciones</h1>
-          </div>
-        </div>
+  const [publicaciones, setPublicaciones] = useState([]);
 
-        <div className="publications-grid">
-          {publicationsData.map((pub, index) => (
-            <article key={pub.id} className="pub-card" style={{ animationDelay: `${index * 0.1}s` }}>
-              <div className="pub-cover">
-                <img src={pub.cover} alt={pub.title} />
-              </div>
-              <div className="pub-content">
-                <h3 className="pub-title">{pub.title}</h3>
-                <div className="pub-author">{pub.author}</div>
-                <div className="pub-date">{pub.date}</div>
-                <p className="pub-description">{pub.description}</p>
-              </div>
-            </article>
-          ))}
-        </div>
+  useEffect(() => {
+    const fetchPublicaciones = async () => {
+      const { data, error } = await supabase
+        .from('publicaciones')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching publicaciones:', error);
+      } else {
+        setPublicaciones(data);
+      }
+    };
+
+    fetchPublicaciones();
+  }, []);
+
+  return (
+    <div className="archivo-container">
+      <h1>Publicaciones</h1>
+      <div className="cards-container">
+        {publicaciones.map((pub) => (
+          <div key={pub.id} className="card">
+            <div className="card-header">
+              <span className="card-category">{pub.categoria}</span>
+              {pub.imagen_url && <img src={pub.imagen_url} alt={pub.titulo} className="card-image" />}
+            </div>
+            <div className="card-body">
+              <h2 className="card-title">{pub.titulo}</h2>
+              <p className="card-author">{pub.escritores}</p>
+              <p className="card-date">{new Date(pub.fecha).toLocaleDateString()}</p>
+              {pub.documento_url && (
+                <a href={pub.documento_url} target="_blank" rel="noopener noreferrer" className="card-button">
+                  Leer Documento
+                </a>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

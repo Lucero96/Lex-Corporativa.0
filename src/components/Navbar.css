@@ -11,7 +11,7 @@
 }
 
 .navbar.scrolled {
-  background: rgba(11, 3, 50, 0.95);
+  background: linear-gradient(135deg, rgba(11, 3, 50, 0.95), rgba(20, 10, 70, 0.95));
   backdrop-filter: blur(12px);
   padding: 1rem 0;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
@@ -36,26 +36,57 @@
 }
 
 .logo-circle {
-  width: 4rem;
-  height: 4rem;
+  width: 5rem;
+  height: 5rem;
   background: linear-gradient(135deg, #E8DCC4, #C6A75E);
   border-radius: 50%;
+  border: 2px solid #C6A75E; /* Reduced border thickness */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible; /* Ensure no clipping occurs */
   font-family: 'Playfair Display', serif;
   font-weight: 900;
   font-size: 1.5rem;
   color: #0B0332;
   letter-spacing: -0.05em;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.logo-image {
+  position: absolute;
+  top: 5%; /* Adjusted to move the image slightly forward */
+  left: 5%; /* Centered with a slight offset */
+  transform: translate(-5%, -5%);
+  height: 100%;
+  width: auto;
+  cursor: pointer;
+  clip-path: circle(50%); /* Ensure the image is circular */
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Maintain aspect ratio and fill the circle */
 }
 
 .logo-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   font-family: 'Playfair Display', serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
   color: #E8DCC4;
+}
+
+.logo-text-main {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.logo-text-sub {
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  margin-top: -5px;
 }
 
 .nav-links {
@@ -69,35 +100,39 @@
   border: none;
   color: #E8DCC4;
   cursor: pointer;
-  transition: color 0.3s;
-  font-size: 0.625rem;
+  transition: color 0.3s, transform 0.3s;
+  font-size: 0.75rem;
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.3em;
+  .card-author {
+    margin-top: 1rem; /* Adjust the value to increase or decrease the space */
+  }  font-family: 'Playfair Display', serif; /* Updated font to match the provided style */
 }
 
 .nav-links button:hover,
 .nav-links button.active {
   color: white;
+  transform: scale(1.1);
 }
 
 @media (max-width: 768px) {
   .logo-circle {
-    width: 3rem;
-    height: 3rem;
-    font-size: 1.2rem;
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.3rem;
   }
 
   .logo-text {
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
 
   .nav-links {
-    gap: 1.5rem;
+    gap: 2rem;
   }
 
   .nav-links button {
-    font-size: 0.55rem;
+    font-size: 0.65rem;
   }
 }
 
@@ -110,4 +145,30 @@
   .nav-links {
     gap: 1rem;
   }
+
+  .nav-links button {
+    font-size: 0.8rem;
+  }
+}
+
+/* ========== NOSOTROS SECTION ========== */
+.nosotros-title {
+  font-family: 'Playfair Display', serif; /* Match font style with other titles */
+  font-size: 2.5rem; /* Ensure a prominent title size */
+  font-weight: 700; /* Bold text for emphasis */
+  color: #E8DCC4; /* Harmonize color with other titles */
+  text-transform: capitalize; /* Consistent text transformation */
+  text-align: center; /* Center align the title */
+  margin-bottom: 1.5rem; /* Add spacing below the title */
+}
+
+/* ========== ARCHIVO SECTION ========== */
+.archivo-title {
+  font-family: 'Playfair Display', serif; /* Match font style with other titles */
+  font-size: 2.5rem; /* Ensure a prominent title size */
+  font-weight: 700; /* Bold text for emphasis */
+  color: #E8DCC4; /* Harmonize color with other titles */
+  text-transform: capitalize; /* Consistent text transformation */
+  text-align: center; /* Center align the title */
+  margin-bottom: 1.5rem; /* Add spacing below the title */
 }
