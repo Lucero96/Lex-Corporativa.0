@@ -7,7 +7,7 @@ import Archivo from './pages/Archivo';
 import Nosotros from './pages/Nosotros';
 import './App.css';
 
-function App() {
+function App() {  
   const [currentPage, setCurrentPage] = useState('home');
 
   const handleNavigate = (page) => {

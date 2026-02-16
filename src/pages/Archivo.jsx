@@ -4,6 +4,7 @@ import './Archivo.css';
 
 const Archivo = () => {
   const [publicaciones, setPublicaciones] = useState([]);
+  const [selectedPdf, setSelectedPdf] = useState(null);
 
   useEffect(() => {
     const fetchPublicaciones = async () => {
@@ -21,6 +22,12 @@ const Archivo = () => {
     fetchPublicaciones();
   }, []);
 
+  const handleCloseViewer = (e) => {
+    if (e.target.classList.contains('pdf-viewer')) {
+      setSelectedPdf(null);
+    }
+  };
+
   return (
     <div className="archivo-container">
       <h1>Publicaciones</h1>
@@ -36,14 +43,24 @@ const Archivo = () => {
               <p className="card-author">{pub.escritores}</p>
               <p className="card-date">{new Date(pub.fecha).toLocaleDateString()}</p>
               {pub.documento_url && (
-                <a href={pub.documento_url} target="_blank" rel="noopener noreferrer" className="card-button">
+                <button onClick={() => setSelectedPdf(pub.documento_url)} className="card-button">
                   Leer Documento
-                </a>
+                </button>
               )}
             </div>
           </div>
         ))}
       </div>
+      {selectedPdf && (
+        <div className="pdf-viewer" onClick={handleCloseViewer}>
+          <iframe
+            src={selectedPdf}
+            width="80%"
+            height="80%"
+            title="PDF Viewer"
+          ></iframe>
+        </div>
+      )}
     </div>
   );
 };
