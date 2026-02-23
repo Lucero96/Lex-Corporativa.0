@@ -59,13 +59,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
             <li className="nav-item" style={{ listStyle: 'none' }}>
               <button
                 className={currentPage === 'contacto' ? 'active' : ''}
-                onClick={(e) => {
-                  e.preventDefault();
-                  const footer = document.getElementById('footer');
-                  if (footer) {
-                    footer.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
+                onClick={() => onNavigate('contacto')}
               >
                 Contacto
               </button>

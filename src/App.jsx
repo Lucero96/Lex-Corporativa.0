@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Noticias from './pages/Noticias';
 import Archivo from './pages/Archivo';
 import Nosotros from './pages/Nosotros';
+import Contacto from './pages/Contacto';
 import './App.css';
 
 function App() {  
@@ -29,6 +30,8 @@ function App() {
         return <Archivo />;
       case 'nosotros':
         return <Nosotros />;
+      case 'contacto':
+        return <Contacto />;
       default:
         return <Home onNavigate={handleNavigate} />;
     }

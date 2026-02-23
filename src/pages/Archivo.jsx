@@ -29,28 +29,39 @@ const Archivo = () => {
   };
 
   return (
-    <div className="archivo-container">
-      <h1>Publicaciones</h1>
-      <div className="cards-container">
-        {publicaciones.map((pub) => (
-          <div key={pub.id} className="card">
-            <div className="card-header">
-              <span className="card-category">{pub.categoria}</span>
-              {pub.imagen_url && <img src={pub.imagen_url} alt={pub.titulo} className="card-image" />}
-            </div>
-            <div className="card-body">
-              <h2 className="card-title">{pub.titulo}</h2>
-              <p className="card-author">{pub.escritores}</p>
-              <p className="card-date">{new Date(pub.fecha).toLocaleDateString()}</p>
-              {pub.documento_url && (
-                <button onClick={() => setSelectedPdf(pub.documento_url)} className="card-button">
-                  Leer Documento
-                </button>
-              )}
-            </div>
+    <div className="page-content">
+      <div className="container">
+        <div className="page-header">
+          <div>
+            <div className="section-label">REPOSITORIO ACADÉMICO</div>
+            <h1 className="page-title">Archivo de Publicaciones</h1>
           </div>
-        ))}
+        </div>
+
+        <div className="archivo-content">
+          <div className="cards-container">
+            {publicaciones.map((pub) => (
+              <div key={pub.id} className="card">
+                <div className="card-header">
+                  <span className="card-category">{pub.categoria}</span>
+                  {pub.imagen_url && <img src={pub.imagen_url} alt={pub.titulo} className="card-image" />}
+                </div>
+                <div className="card-body">
+                  <h2 className="card-title">{pub.titulo}</h2>
+                  <p className="card-author">{pub.escritores}</p>
+                  <p className="card-date">{new Date(pub.fecha).toLocaleDateString()}</p>
+                  {pub.documento_url && (
+                    <button onClick={() => setSelectedPdf(pub.documento_url)} className="card-button">
+                      Leer Documento
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
+
       {selectedPdf && (
         <div className="pdf-viewer" onClick={handleCloseViewer}>
           <iframe
@@ -59,6 +70,7 @@ const Archivo = () => {
             height="80%"
             title="PDF Viewer"
           ></iframe>
+          <button className="close-button" onClick={() => setSelectedPdf(null)}>×</button>
         </div>
       )}
     </div>
