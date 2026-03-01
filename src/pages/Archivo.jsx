@@ -10,7 +10,8 @@ const Archivo = () => {
     const fetchPublicaciones = async () => {
       const { data, error } = await supabase
         .from('publicaciones')
-        .select('*');
+        .select('*')
+        .neq('tipo', 'noticia');
 
       if (error) {
         console.error('Error fetching publicaciones:', error);
