@@ -4,6 +4,7 @@ import './Noticias.css';
 
 const Noticias = () => {
   const [publicaciones, setPublicaciones] = useState([]);
+  const [selectedPdf, setSelectedPdf] = useState(null);
 
   useEffect(() => {
     const fetchPublicaciones = async () => {
@@ -18,28 +19,48 @@ const Noticias = () => {
         setPublicaciones(data);
       }
     };
-
     fetchPublicaciones();
   }, []);
+
+  const handleCloseViewer = (e) => {
+    if (e.target.classList.contains('pdf-viewer')) {
+      setSelectedPdf(null);
+    }
+  };
 
   return (
     <div className="noticias-container">
       <h1>Noticias</h1>
-      <div className="noticias-list">
+      <div className="cards-container">
         {publicaciones.map((pub) => (
-          <div key={pub.id} className="noticia-item">
-            <h2>{pub.titulo}</h2>
-            <p>{pub.escritores}</p>
-            <p>{new Date(pub.fecha).toLocaleDateString()}</p>
-            {pub.imagen_url && <img src={pub.imagen_url} alt={pub.titulo} />}
-            {pub.documento_url && (
-              <a href={pub.documento_url} target="_blank" rel="noopener noreferrer">
-                Ver Documento
-              </a>
-            )}
+          <div key={pub.id} className="card">
+            <div className="card-header">
+              <span className="card-category">Noticia</span>
+              {pub.imagen_url && <img src={pub.imagen_url} alt={pub.titulo} className="card-image" />}
+            </div>
+            <div className="card-body">
+              <h2 className="card-title">{pub.titulo}</h2>
+              <p className="card-author">{pub.escritores}</p>
+              <p className="card-date">{new Date(pub.fecha).toLocaleDateString()}</p>
+              {pub.documento_url && (
+                <button onClick={() => setSelectedPdf(pub.documento_url)} className="card-button">
+                  Ver Documento
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
+      {selectedPdf && (
+        <div className="pdf-viewer" onClick={handleCloseViewer}>
+          <iframe
+            src={selectedPdf}
+            width="80%"
+            height="80%"
+            title="PDF Viewer"
+          ></iframe>
+        </div>
+      )}
     </div>
   );
 };
