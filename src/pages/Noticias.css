@@ -171,30 +171,30 @@
 
 /* ========== NOTICIAS PAGE ========== */
 .noticias-container {
-  padding: 60px 40px;
+  max-width: 1280px;
+  margin: 50px auto;
+  padding: 160px 40px;
   background-color: #0d0c1d;
   color: #fff;
   font-family: 'Poppins', sans-serif;
-  text-align: center;
+  text-align: left;
   margin-top: 120px;
 }
 
 .noticias-container h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 3rem;
-  font-weight: 700;
-  color: #E8DCC4;
-  margin-bottom: 2rem;
-  text-align: center;
+
+  
 }
 
 .noticias-container p {
-  font-size: 18px;
-  color: #a0a0a0;
-  font-weight: 400;
-  margin-bottom: 40px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+max-width: 1280px; /* Asegúrate que este valor sea igual al de tu header */
+  margin: 0 auto;    /* Centra el contenedor en la pantalla */
+  padding: 120px 2rem 60px; /* El segundo valor (2rem) debe coincidir con el padding de tu header */
+  background-color: #0d0c1d;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Fuerza a que todo empiece a la izquierda */
 }
 
 .cards-container {
