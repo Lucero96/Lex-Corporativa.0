@@ -70,9 +70,9 @@ button {
 .section-label {
   font-size: 0.625rem;
   text-transform: uppercase;
-  letter-spacing: 0.5em;
-  color: #80cc66;
-  font-weight: 900;
+  letter-spacing: 3px;
+  color: #C5A059;
+  font-weight: 800;
   margin-bottom: 1rem;
 }
 
@@ -85,18 +85,19 @@ button {
 
 /* ========== SCROLLBAR ========== */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #05021a;
+  background: #0B0332;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #80cc66;
-  border-radius: 5px;
+  background: #C5A059;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6ab356;
+  background: #C5A059;
 }

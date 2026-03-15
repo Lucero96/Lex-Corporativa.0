@@ -2,27 +2,54 @@ import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import './Noticias.css';
 
+const FILTER_OPTIONS = [
+  { label: 'Todas', value: 'todas' },
+  { label: 'Este Mes', value: 'este-mes' },
+  { label: 'Anteriores', value: 'anteriores' }
+];
+
 const Noticias = () => {
   const [publicaciones, setPublicaciones] = useState([]);
+  const [activeFilter, setActiveFilter] = useState('todas');
   const [selectedPdf, setSelectedPdf] = useState(null);
   const noticiasPageRef = useRef(null);
   const noticiasCanvasRef = useRef(null);
 
   useEffect(() => {
     const fetchPublicaciones = async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('publicaciones')
         .select('*')
-        .eq('tipo', 'noticia');
+        .eq('tipo', 'noticia')
+        .order('fecha', { ascending: false });
+
+      if (activeFilter === 'este-mes') {
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+        query = query
+          .gte('fecha', startOfMonth.toISOString())
+          .lt('fecha', startOfNextMonth.toISOString());
+      }
+
+      if (activeFilter === 'anteriores') {
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        query = query.lt('fecha', startOfMonth.toISOString());
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching publicaciones:', error);
       } else {
-        setPublicaciones(data);
+        setPublicaciones(data || []);
       }
     };
     fetchPublicaciones();
-  }, []);
+  }, [activeFilter]);
 
   useEffect(() => {
     const sectionEl = noticiasPageRef.current;
@@ -156,103 +183,103 @@ const Noticias = () => {
     }
   };
 
-    return (
-      <div className="noticias-page" ref={noticiasPageRef}>
-        <canvas className="noticias-network-canvas" ref={noticiasCanvasRef} aria-hidden="true" />
-        <div style={{ width: '90%', margin: '0 auto', position: 'relative', zIndex: 2 }}>
-          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '32px', marginTop: '110px' }}>
-            <div>
-              <div style={{ color: '#80CC66', fontSize: '10px', fontFamily: 'Inter', fontWeight: 900, textTransform: 'uppercase', lineHeight: '16px', letterSpacing: '5px', wordWrap: 'break-word', marginBottom: '8px' }}>REPOSITORIO ACADÉMICO</div>
-              <div style={{ color: 'white', fontSize: '48px', fontFamily: 'Playfair Display', fontWeight: 700, lineHeight: '76.80px', wordWrap: 'break-word' }}>Noticia Semanal</div>
+  const openPdfFromPublication = (pub) => {
+    if (pub?.documento_url) {
+      setSelectedPdf(pub.documento_url);
+    }
+  };
+
+  return (
+    <div className="noticias-page" ref={noticiasPageRef}>
+      <canvas className="noticias-network-canvas" ref={noticiasCanvasRef} aria-hidden="true" />
+
+      <main className="noticias-main">
+        <div className="container">
+          <header className="noticias-header">
+            <div className="section-label">REPOSITORIO ACADEMICO</div>
+            <h1 className="noticias-title">Noticia Semanal</h1>
+            <p className="noticias-subtitle">
+              Mantente al tanto de las últimas actualizaciones, novedades legislativas y eventos de nuestra comunidad jurídica.
+            </p>
+
+            <div className="noticias-filter-chips" aria-label="Filtros cronológicos de noticias">
+              {FILTER_OPTIONS.map((filter) => (
+                <button
+                  key={filter.value}
+                  type="button"
+                  className={`noticias-filter-chip ${activeFilter === filter.value ? 'is-active' : ''}`}
+                  onClick={() => setActiveFilter(filter.value)}
+                >
+                  {filter.label}
+                </button>
+              ))}
             </div>
-            {/* Aquí puedes agregar el logo si lo necesitas, separado del título */}
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr', gridTemplateRows: '1fr 1fr', gap: '24px', minHeight: '700px' }}>
-            {/* Card principal grande, ocupa dos filas */}
-            {publicaciones[0] && (
-              <div style={{ gridRow: '1 / span 2', gridColumn: '1', minHeight: '600px', background: 'linear-gradient(90deg, rgba(0, 0, 0, 0.20) 0%, rgba(247, 245, 245, 0.20) 72%), rgba(1, 1, 1, 0.15)', overflow: 'hidden', backgroundImage: `url(${publicaciones[0].imagen_url || 'https://placehold.co/588x700'})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', borderRadius: '18px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', padding: '40px', boxShadow: '0 10px 20px rgba(0,0,0,0.3)' }}>
-                <div style={{ color: 'white', fontSize: '24px', fontFamily: 'Playfair Display', fontWeight: 700, lineHeight: '32px', marginBottom: '18px' }}>Resumen {new Date(publicaciones[0].fecha).toLocaleDateString()}</div>
-                <div style={{ color: 'rgba(255, 255, 255, 0.80)', fontSize: '20px', fontFamily: 'Playfair Display', fontWeight: 500, lineHeight: '32px', marginBottom: '18px' }}>{publicaciones[0].titulo}<br />{publicaciones[0].escritores}<br />{publicaciones[0].resumen || ''}</div>
-                {publicaciones[0].resumen_puntos && Array.isArray(publicaciones[0].resumen_puntos) && (
-                  <ul style={{ color: '#fff', fontSize: '18px', fontFamily: 'Playfair Display', fontWeight: 500, marginTop: '12px', paddingLeft: '24px' }}>
-                    {publicaciones[0].resumen_puntos.map((punto, idx) => (
-                      <li key={idx} style={{ marginBottom: '10px', lineHeight: '1.5' }}>{punto}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
-            {/* 4 cards verticales a la derecha */}
-            {publicaciones.slice(1, 5).map((pub, idx) => (
-              <div key={pub.id} style={{
-                gridRow: '1',
-                gridColumn: `${idx+2}`,
-                minHeight: '290px',
-                backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.20) 0%, rgba(247,245,245,0.20) 72%), url(${pub.imagen_url || 'https://placehold.co/284x290'})`,
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat',
-                borderRadius: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-                padding: '20px',
-                boxShadow: '0 10px 20px rgba(0,0,0,0.3)'
-              }}>
-                <div style={{ color: 'white', fontSize: '14px', fontFamily: 'Playfair Display', fontWeight: 700, lineHeight: '20px', marginBottom: '8px' }}>Resumen {new Date(pub.fecha).toLocaleDateString()}</div>
-                <div style={{ color: 'rgba(255, 255, 255, 0.80)', fontSize: '13px', fontFamily: 'Playfair Display', fontWeight: 500, lineHeight: '16px', marginBottom: '8px' }}>{pub.titulo}<br />{pub.escritores}<br />{pub.resumen || ''}</div>
-                {pub.resumen_puntos && Array.isArray(pub.resumen_puntos) && (
-                  <ul style={{ color: '#fff', fontSize: '12px', fontFamily: 'Playfair Display', fontWeight: 500, marginTop: '4px', paddingLeft: '16px' }}>
-                    {pub.resumen_puntos.map((punto, idx2) => (
-                      <li key={idx2} style={{ marginBottom: '4px', lineHeight: '1.3' }}>{punto}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
-            {/* 4 cards horizontales abajo */}
-            {publicaciones.slice(5, 9).map((pub, idx) => (
-              <div key={pub.id} style={{
-                gridRow: '2',
-                gridColumn: `${idx+2}`,
-                minHeight: '290px',
-                backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.20) 0%, rgba(247,245,245,0.20) 72%), url(${pub.imagen_url || 'https://placehold.co/284x290'})`,
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat',
-                borderRadius: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-                padding: '20px',
-                boxShadow: '0 10px 20px rgba(0,0,0,0.3)'
-              }}>
-                <div style={{ color: 'white', fontSize: '14px', fontFamily: 'Playfair Display', fontWeight: 700, lineHeight: '20px', marginBottom: '8px' }}>Resumen {new Date(pub.fecha).toLocaleDateString()}</div>
-                <div style={{ color: 'rgba(255, 255, 255, 0.80)', fontSize: '13px', fontFamily: 'Playfair Display', fontWeight: 500, lineHeight: '16px', marginBottom: '8px' }}>{pub.titulo}<br />{pub.escritores}<br />{pub.resumen || ''}</div>
-                {pub.resumen_puntos && Array.isArray(pub.resumen_puntos) && (
-                  <ul style={{ color: '#fff', fontSize: '12px', fontFamily: 'Playfair Display', fontWeight: 500, marginTop: '4px', paddingLeft: '16px' }}>
-                    {pub.resumen_puntos.map((punto, idx2) => (
-                      <li key={idx2} style={{ marginBottom: '4px', lineHeight: '1.3' }}>{punto}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
-          </div>
-          {/* PDF Viewer */}
-          {selectedPdf && (
-            <div className="pdf-viewer" onClick={handleCloseViewer}>
-              <iframe
-                src={selectedPdf}
-                width="80%"
-                height="80%"
-                title="PDF Viewer"
-              ></iframe>
-            </div>
+          </header>
+
+          {publicaciones.length === 0 ? (
+            <div className="noticias-empty">No hay noticias registradas en este periodo.</div>
+          ) : (
+            <section className="noticias-grid" aria-label="Listado de noticias">
+              {publicaciones.map((pub) => (
+                <article
+                  key={pub.id}
+                  className="noticia-grid-card"
+                  style={{
+                    backgroundImage: `linear-gradient(165deg, rgba(1, 8, 29, 0.86) 0%, rgba(1, 8, 29, 0.62) 48%, rgba(1, 8, 29, 0.88) 100%), url(${pub.imagen_url || 'https://placehold.co/500x650'})`
+                  }}
+                >
+                  <div className="noticia-grid-overlay">
+                    <p className="noticia-grid-date">Resumen {new Date(pub.fecha).toLocaleDateString()}</p>
+                    <h2 className="noticia-grid-title">{pub.titulo}</h2>
+                    <p className="noticia-grid-author">{pub.escritores || 'Lex Corporativa'}</p>
+                    <p className="noticia-grid-summary">{pub.resumen || ''}</p>
+
+                    {Array.isArray(pub.resumen_puntos) && pub.resumen_puntos.length > 0 && (
+                      <ul className="noticia-grid-points">
+                        {pub.resumen_puntos.slice(0, 3).map((punto, idx) => (
+                          <li key={idx}>{punto}</li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <button
+                      type="button"
+                      className="noticia-grid-action"
+                      onClick={() => openPdfFromPublication(pub)}
+                      disabled={!pub.documento_url}
+                    >
+                      {pub.documento_url ? 'Ver Documento' : 'Sin Documento'}
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </section>
           )}
         </div>
-      </div>
-    );
+      </main>
+
+      {selectedPdf && (
+        <div className="pdf-viewer" onClick={handleCloseViewer}>
+          <div className="noticias-pdf-container">
+            <iframe
+              src={selectedPdf}
+              width="80%"
+              height="80%"
+              title="PDF Viewer"
+            ></iframe>
+            <button
+              type="button"
+              className="noticias-close-button"
+              onClick={() => setSelectedPdf(null)}
+              aria-label="Cerrar visor PDF"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Noticias;

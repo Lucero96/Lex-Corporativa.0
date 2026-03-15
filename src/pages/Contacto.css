@@ -1,23 +1,25 @@
 /* ========== PAGE LAYOUT ========== */
 .contact-page-content {
-  min-height: 100vh;
-  padding: 0;
-  background: #f3f4f6;
-}
-
-.contact-hero {
   position: relative;
   overflow: hidden;
+  min-height: 100vh;
+  padding: 0;
   background: #02325aeb;
-  padding: 8rem 0 3rem;
 }
 
-.contact-hero-network-canvas {
+.contact-page-network-canvas {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
   opacity: 0.8;
+}
+
+.contact-hero {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  padding: 8rem 0 3rem;
 }
 
 .contact-hero .container {
@@ -29,12 +31,14 @@
   margin-bottom: 0;
   border-bottom: none;
   padding-bottom: 0;
-  display: block;
-  text-align: center;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  text-align: left;
 }
 
 .contact-hero .section-label {
-  color: rgba(232, 220, 196, 0.82);
+  color: #C5A059;
 }
 
 .contact-hero .page-title {
@@ -48,6 +52,8 @@
 }
 
 .contact-main-wrapper {
+  position: relative;
+  z-index: 2;
   padding: 3.2rem 0 6rem;
 }
 
@@ -79,13 +85,13 @@
   font-family: 'Playfair Display', serif;
   font-size: 2.5rem;
   font-weight: 700;
-  color: #0B0332;
+  color: #E8DCC4;
   margin-bottom: 0.75rem;
   line-height: 1.2;
 }
 
 .contact-description {
-  color: #334155;
+  color: rgba(232, 220, 196, 0.9);
   font-size: 1.125rem;
   line-height: 1.7;
   margin-bottom: 1rem;
@@ -95,7 +101,7 @@
   display: flex;
   gap: 1.25rem;
   padding: 1.5rem;
-  background: #0d234f;
+  background: #101c42;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 0.75rem;
   transition: all 0.3s ease;
@@ -180,7 +186,7 @@
 }
 
 .form-card {
-  background: linear-gradient(145deg, #0d234f 0%, #102a5a 100%);
+  background: linear-gradient(145deg, #101c42 0%, #102a5a 100%);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 1rem;
   padding: 2.5rem;
@@ -305,7 +311,7 @@
     padding: 7rem 0 2.5rem;
   }
 
-  .contact-hero-network-canvas {
+  .contact-page-network-canvas {
     opacity: 0.65;
   }
 

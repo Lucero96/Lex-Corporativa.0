@@ -2,13 +2,13 @@ import { useEffect, useRef } from 'react';
 import './Contacto.css';
 
 const Contacto = () => {
-  const contactHeroRef = useRef(null);
-  const contactHeroCanvasRef = useRef(null);
+  const contactPageRef = useRef(null);
+  const contactPageCanvasRef = useRef(null);
 
   useEffect(() => {
-    const sectionEl = contactHeroRef.current;
-    const canvas = contactHeroCanvasRef.current;
-    if (!sectionEl || !canvas) return;
+    const pageEl = contactPageRef.current;
+    const canvas = contactPageCanvasRef.current;
+    if (!pageEl || !canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -35,7 +35,7 @@ const Contacto = () => {
     };
 
     const resizeCanvas = () => {
-      const rect = sectionEl.getBoundingClientRect();
+      const rect = pageEl.getBoundingClientRect();
       width = rect.width;
       height = rect.height;
 
@@ -106,7 +106,7 @@ const Contacto = () => {
     };
 
     const handleMouseMove = (event) => {
-      const rect = sectionEl.getBoundingClientRect();
+      const rect = pageEl.getBoundingClientRect();
       mouse.x = event.clientX - rect.left;
       mouse.y = event.clientY - rect.top;
     };
@@ -120,21 +120,21 @@ const Contacto = () => {
     draw();
 
     window.addEventListener('resize', resizeCanvas);
-    sectionEl.addEventListener('mousemove', handleMouseMove);
-    sectionEl.addEventListener('mouseleave', handleMouseLeave);
+    pageEl.addEventListener('mousemove', handleMouseMove);
+    pageEl.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
-      sectionEl.removeEventListener('mousemove', handleMouseMove);
-      sectionEl.removeEventListener('mouseleave', handleMouseLeave);
+      pageEl.removeEventListener('mousemove', handleMouseMove);
+      pageEl.removeEventListener('mouseleave', handleMouseLeave);
       window.cancelAnimationFrame(animationId);
     };
   }, []);
 
   return (
-    <div className="contact-page-content">
-      <section className="contact-hero" ref={contactHeroRef}>
-        <canvas className="contact-hero-network-canvas" ref={contactHeroCanvasRef} aria-hidden="true" />
+    <div className="contact-page-content" ref={contactPageRef}>
+      <canvas className="contact-page-network-canvas" ref={contactPageCanvasRef} aria-hidden="true" />
+      <section className="contact-hero">
         <div className="container">
           <div className="page-header">
             <div>
@@ -152,7 +152,6 @@ const Contacto = () => {
               <div className="contact-container">
                 {/* Columna Izquierda - Información */}
                 <div className="contact-info-column">
-                  <h2 className="contact-main-title">Información de Contacto</h2>
                   <p className="contact-description">
                     Estamos aquí para responder tus consultas, recibir tus colaboraciones 
                     y fortalecer nuestra comunidad académica.

@@ -283,13 +283,15 @@ const Archivo = () => {
 
       {selectedPdf && (
         <div className="pdf-viewer" onClick={handleCloseViewer}>
-          <iframe
-            src={selectedPdf}
-            width="80%"
-            height="80%"
-            title="PDF Viewer"
-          ></iframe>
-          <button className="close-button" onClick={() => setSelectedPdf(null)}>×</button>
+          <div className="pdf-container">
+            <iframe
+              src={selectedPdf}
+              width="80%"
+              height="80%"
+              title="PDF Viewer"
+            ></iframe>
+            <button className="close-button" onClick={() => setSelectedPdf(null)}>×</button>
+          </div>
         </div>
       )}
     </div>

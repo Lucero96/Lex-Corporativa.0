@@ -258,9 +258,9 @@
 .section-label {
   font-size: 0.625rem;
   text-transform: uppercase;
-  letter-spacing: 0.5em;
-  color: #80cc66;
-  font-weight: 900;
+  letter-spacing: 3px;
+  color: #C5A059;
+  font-weight: 800;
   margin-bottom: 1rem;
 }
 
@@ -328,7 +328,7 @@
 }
 
 .area-card:hover .area-icon {
-  stroke: #80cc66;
+  stroke: #C5A059;
 }
 
 .area-title {
@@ -397,15 +397,100 @@
   box-shadow: 0 10px 20px rgba(11, 3, 50, 0.2);
 }
 
-.files-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+.carousel-shell {
+  position: relative;
+  max-width: 62rem;
+  margin: 0 auto;
+  --carousel-visible: 3;
+}
+
+.carousel-viewport {
+  overflow: hidden;
+  border-radius: 0.8rem;
+}
+
+.carousel-track {
+  display: flex;
+  margin: 0 -0.6rem;
+  transition: transform 0.55s ease;
+  will-change: transform;
+}
+
+.carousel-slide {
+  flex: 0 0 calc(100% / var(--carousel-visible));
+  min-width: calc(100% / var(--carousel-visible));
+  padding: 0 0.6rem;
+  box-sizing: border-box;
+}
+
+.carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 50%;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.55rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 3;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.carousel-nav:hover {
+  transform: translateY(-50%) scale(1.06);
+}
+
+.carousel-nav-prev {
+  left: -1.25rem;
+}
+
+.carousel-nav-next {
+  right: -1.25rem;
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.carousel-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.carousel-dot:hover {
+  transform: scale(1.12);
 }
 
 .files-empty {
   color: rgba(11, 3, 50, 0.65);
   padding: 1rem 0;
+}
+
+.files-carousel-shell .carousel-nav {
+  background: #0B0332;
+  color: #E8DCC4;
+  box-shadow: 0 8px 22px rgba(11, 3, 50, 0.24);
+}
+
+.files-carousel-shell .carousel-dot {
+  background: rgba(11, 3, 50, 0.28);
+}
+
+.files-carousel-shell .carousel-dot.is-active {
+  background: #0B0332;
+  transform: scale(1.2);
 }
 
 .file-card {
@@ -422,6 +507,15 @@
 .file-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 16px 30px rgba(11, 3, 50, 0.14);
+}
+
+.file-card-featured {
+  max-width: none;
+  margin: 0;
+}
+
+.file-card-featured .file-card-image-wrap {
+  height: 13.5rem;
 }
 
 .file-card-image-wrap {
@@ -502,6 +596,86 @@
   gap: 1.5rem;
 }
 
+.news-empty {
+  color: rgba(232, 220, 196, 0.8);
+  padding: 1rem 0;
+}
+
+.news-carousel-shell {
+  max-width: 70rem;
+}
+
+.news-carousel-shell .carousel-nav {
+  background: rgba(232, 220, 196, 0.92);
+  color: #0B0332;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+
+.news-carousel-shell .carousel-dot {
+  background: rgba(232, 220, 196, 0.35);
+}
+
+.news-carousel-shell .carousel-dot.is-active {
+  background: #E8DCC4;
+  transform: scale(1.2);
+}
+
+.news-slide-card {
+  min-height: 13.5rem;
+  background-size: cover;
+  background-position: center;
+  border-radius: 0.6rem;
+  overflow: hidden;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28);
+}
+
+.news-slide-overlay {
+  min-height: 13.5rem;
+  background: linear-gradient(120deg, rgba(7, 11, 35, 0.82), rgba(7, 11, 35, 0.48));
+  color: #ffffff;
+  padding: 1rem 0.95rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.news-slide-date {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(232, 220, 196, 0.92);
+  font-weight: 700;
+}
+
+.news-slide-title {
+  font-family: 'Playfair Display', serif;
+  margin: 0.45rem 0 0;
+  font-size: clamp(1.02rem, 2.1vw, 1.35rem);
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+.news-slide-summary {
+  margin: 0.55rem 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.45;
+  font-size: 0.86rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-slide-points {
+  margin: 0.5rem 0 0;
+  padding-left: 0.95rem;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.35;
+  font-size: 0.78rem;
+}
+
 .news-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -540,7 +714,7 @@
   position: absolute;
   top: 1rem;
   left: 1rem;
-  background: #80cc66;
+  background: #C5A059;
   color: black;
   font-size: 0.5rem;
   font-weight: 900;
@@ -553,7 +727,7 @@
   font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: #80cc66;
+  color: #C5A059;
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
@@ -574,7 +748,7 @@
 }
 
 .news-card:hover .news-title {
-  color: #80cc66;
+  color: #C5A059;
 }
 
 .news-excerpt {
@@ -600,7 +774,11 @@
   .about-intro-grid { grid-template-columns: 1fr; gap: 2.5rem; }
   .about-media { min-height: 31rem; max-width: 42rem; margin: 0 auto; width: 100%; }
   .about-content { max-width: none; }
-  .areas-grid, .files-grid, .news-grid { grid-template-columns: repeat(2, 1fr); }
+  .area-card { padding: 1.65rem; }
+  .carousel-shell { --carousel-visible: 2; }
+  .file-card-featured .file-card-image-wrap { height: 12.5rem; }
+  .news-slide-card,
+  .news-slide-overlay { min-height: 12.5rem; }
 }
 
 @media (max-width: 768px) {
@@ -614,7 +792,14 @@
   .about-image-main { width: 84%; height: 21rem; }
   .about-image-secondary { width: 58%; height: 15.5rem; }
   .about-highlights { grid-template-columns: 1fr; }
-  .areas-grid, .files-grid, .news-grid { grid-template-columns: 1fr; }
+  .carousel-shell { --carousel-visible: 1; }
+  .areas-grid { grid-template-columns: 1fr; }
+  .carousel-nav-prev { left: -0.45rem; }
+  .carousel-nav-next { right: -0.45rem; }
+  .file-card-featured .file-card-image-wrap { height: 15rem; }
+  .news-slide-card,
+  .news-slide-overlay { min-height: 15rem; }
+  .news-slide-summary { font-size: 0.9rem; }
 }
 
 @media (max-width: 640px) {
@@ -625,4 +810,10 @@
   .about-media { min-height: 22rem; }
   .about-image { position: static; width: 100%; height: 13.5rem; }
   .about-image + .about-image { margin-top: 0.9rem; }
+  .carousel-nav { width: 2rem; height: 2rem; font-size: 1.3rem; }
+  .carousel-nav-prev { left: 0.25rem; }
+  .carousel-nav-next { right: 0.25rem; }
+  .file-card-featured .file-card-image-wrap { height: 13.6rem; }
+  .news-slide-card,
+  .news-slide-overlay { min-height: 13.8rem; }
 }

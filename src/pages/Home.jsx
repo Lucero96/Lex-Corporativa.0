@@ -4,8 +4,20 @@ import './Home.css';
 import { legalAreas } from '../data';
 
 const Home = ({ onNavigate }) => {
+  const getCardsPerView = () => {
+    if (window.innerWidth <= 768) return 1;
+    if (window.innerWidth <= 1024) return 2;
+    return 3;
+  };
+
   const [ultimasNoticias, setUltimasNoticias] = useState([]);
   const [ultimosArchivos, setUltimosArchivos] = useState([]);
+  const [archivoSlideIndex, setArchivoSlideIndex] = useState(0);
+  const [noticiaSlideIndex, setNoticiaSlideIndex] = useState(0);
+  const [cardsPerView, setCardsPerView] = useState(() => {
+    if (typeof window === 'undefined') return 3;
+    return getCardsPerView();
+  });
   const heroRef = useRef(null);
   const networkCanvasRef = useRef(null);
   const legalAreasRef = useRef(null);
@@ -20,7 +32,7 @@ const Home = ({ onNavigate }) => {
         .select('*')
         .eq('tipo', 'noticia')
         .order('fecha', { ascending: false })
-        .limit(3);
+        .limit(10);
 
       if (noticiasError) {
         console.error('Error fetching noticias:', noticiasError);
@@ -33,7 +45,7 @@ const Home = ({ onNavigate }) => {
         .select('*')
         .neq('tipo', 'noticia')
         .order('fecha', { ascending: false })
-        .limit(3);
+        .limit(10);
 
       if (archivosError) {
         console.error('Error fetching archivos:', archivosError);
@@ -44,6 +56,46 @@ const Home = ({ onNavigate }) => {
 
     fetchHomeData();
   }, []);
+
+  useEffect(() => {
+    const updateCardsPerView = () => {
+      setCardsPerView(getCardsPerView());
+    };
+
+    updateCardsPerView();
+    window.addEventListener('resize', updateCardsPerView);
+
+    return () => {
+      window.removeEventListener('resize', updateCardsPerView);
+    };
+  }, []);
+
+  const maxArchivoStart = Math.max(0, ultimosArchivos.length - cardsPerView);
+  const maxNoticiaStart = Math.max(0, ultimasNoticias.length - cardsPerView);
+
+  useEffect(() => {
+    if (ultimosArchivos.length <= cardsPerView) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      setArchivoSlideIndex((prev) => (prev >= maxArchivoStart ? 0 : prev + 1));
+    }, 4300);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [ultimosArchivos.length, cardsPerView, maxArchivoStart]);
+
+  useEffect(() => {
+    if (ultimasNoticias.length <= cardsPerView) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      setNoticiaSlideIndex((prev) => (prev >= maxNoticiaStart ? 0 : prev + 1));
+    }, 4700);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [ultimasNoticias.length, cardsPerView, maxNoticiaStart]);
 
   useEffect(() => {
     const cleanups = [];
@@ -218,6 +270,12 @@ const Home = ({ onNavigate }) => {
     };
   }, []);
 
+  const currentArchivoSlideIndex = Math.min(archivoSlideIndex, maxArchivoStart);
+  const archivoTranslate = (currentArchivoSlideIndex * 100) / cardsPerView;
+
+  const currentNoticiaSlideIndex = Math.min(noticiaSlideIndex, maxNoticiaStart);
+  const noticiaTranslate = (currentNoticiaSlideIndex * 100) / cardsPerView;
+
   return (
     <div>
       {/* Hero Section */}
@@ -346,29 +404,78 @@ const Home = ({ onNavigate }) => {
             <button className="files-btn btn-lex btn-lex-light" onClick={() => onNavigate('archivo')}>VER ARCHIVO</button>
           </div>
 
-          <div className="files-grid">
-            {ultimosArchivos.length === 0 ? (
-              <div className="files-empty">No hay archivos disponibles.</div>
-            ) : (
-              ultimosArchivos.map((archivo, index) => (
-                <article key={archivo.id} className="file-card" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <div className="file-card-image-wrap">
-                    <img
-                      className="file-card-image"
-                      src={archivo.imagen_url || 'https://placehold.co/400x260'}
-                      alt={archivo.titulo}
-                    />
-                    {archivo.categoria && <span className="file-card-category">{archivo.categoria}</span>}
-                  </div>
-                  <div className="file-card-body">
-                    <h3 className="file-card-title">{archivo.titulo}</h3>
-                    <p className="file-card-meta">{archivo.escritores || 'Lex Corporativa'}</p>
-                    <p className="file-card-date">{new Date(archivo.fecha).toLocaleDateString()}</p>
-                  </div>
-                </article>
-              ))
-            )}
-          </div>
+          {ultimosArchivos.length === 0 ? (
+            <div className="files-empty">No hay archivos disponibles.</div>
+          ) : (
+            <div className="carousel-shell files-carousel-shell" style={{ '--carousel-visible': cardsPerView }}>
+              {maxArchivoStart > 0 && (
+                <button
+                  type="button"
+                  className="carousel-nav carousel-nav-prev"
+                  aria-label="Archivo anterior"
+                  onClick={() =>
+                    setArchivoSlideIndex((prev) => (prev <= 0 ? maxArchivoStart : prev - 1))
+                  }
+                >
+                  ‹
+                </button>
+              )}
+
+              <div className="carousel-viewport">
+                <div
+                  className="carousel-track"
+                  style={{ transform: `translateX(-${archivoTranslate}%)` }}
+                >
+                  {ultimosArchivos.map((archivo) => (
+                    <div key={archivo.id} className="carousel-slide">
+                      <article className="file-card file-card-featured">
+                        <div className="file-card-image-wrap">
+                          <img
+                            className="file-card-image"
+                            src={archivo.imagen_url || 'https://placehold.co/400x260'}
+                            alt={archivo.titulo}
+                          />
+                          {archivo.categoria && <span className="file-card-category">{archivo.categoria}</span>}
+                        </div>
+                        <div className="file-card-body">
+                          <h3 className="file-card-title">{archivo.titulo}</h3>
+                          <p className="file-card-meta">{archivo.escritores || 'Lex Corporativa'}</p>
+                          <p className="file-card-date">{new Date(archivo.fecha).toLocaleDateString()}</p>
+                        </div>
+                      </article>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {maxArchivoStart > 0 && (
+                <button
+                  type="button"
+                  className="carousel-nav carousel-nav-next"
+                  aria-label="Siguiente archivo"
+                  onClick={() =>
+                    setArchivoSlideIndex((prev) => (prev >= maxArchivoStart ? 0 : prev + 1))
+                  }
+                >
+                  ›
+                </button>
+              )}
+            </div>
+          )}
+
+          {maxArchivoStart > 0 && (
+            <div className="carousel-dots" aria-label="Indicadores de archivos destacados">
+              {Array.from({ length: maxArchivoStart + 1 }).map((_, idx) => (
+                <button
+                  key={`archivo-dot-${idx}`}
+                  type="button"
+                  className={`carousel-dot ${idx === currentArchivoSlideIndex ? 'is-active' : ''}`}
+                  onClick={() => setArchivoSlideIndex(idx)}
+                  aria-label={`Ir al grupo ${idx + 1} de archivos`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -384,27 +491,80 @@ const Home = ({ onNavigate }) => {
             <button className="btn-secondary btn-lex btn-lex-dark" onClick={() => onNavigate('noticias')}>VER TODAS</button>
           </div>
 
-          <div className="news-grid">
-            {ultimasNoticias.length === 0 ? (
-              <div className="news-empty">No hay noticias disponibles.</div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'row', gap: '16px', justifyContent: 'center', flexWrap: 'nowrap', maxWidth: '1100px', margin: '0 auto' }}>
-                {ultimasNoticias.slice(0, 3).map((news) => (
-                  <div key={news.id} style={{ width: '400px', background: 'linear-gradient(90deg, rgba(0, 0, 0, 0.20) 0%, rgba(247,245,245,0.20) 72%), rgba(1,1,1,0.15)', overflow: 'hidden', backgroundImage: `url(${news.imagen_url || 'https://placehold.co/350x220'})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex', borderRadius: '18px', boxShadow: '0 6px 16px rgba(0,0,0,0.2)', marginBottom: '24px', minHeight: '220px' }}>
-                    <div style={{ alignSelf: 'stretch', height: '25px', color: 'white', fontSize: '18px', fontFamily: 'Playfair Display', fontWeight: 700, lineHeight: '28px', wordWrap: 'break-word', padding: '16px 16px 0 16px' }}>
-                      Resumen {new Date(news.fecha).toLocaleDateString()}
+          {ultimasNoticias.length === 0 ? (
+            <div className="news-empty">No hay noticias disponibles.</div>
+          ) : (
+            <div className="carousel-shell news-carousel-shell" style={{ '--carousel-visible': cardsPerView }}>
+              {maxNoticiaStart > 0 && (
+                <button
+                  type="button"
+                  className="carousel-nav carousel-nav-prev"
+                  aria-label="Noticia anterior"
+                  onClick={() =>
+                    setNoticiaSlideIndex((prev) => (prev <= 0 ? maxNoticiaStart : prev - 1))
+                  }
+                >
+                  ‹
+                </button>
+              )}
+
+              <div className="carousel-viewport">
+                <div
+                  className="carousel-track"
+                  style={{ transform: `translateX(-${noticiaTranslate}%)` }}
+                >
+                  {ultimasNoticias.map((news) => (
+                    <div key={news.id} className="carousel-slide">
+                      <article
+                        className="news-slide-card"
+                        style={{ backgroundImage: `url(${news.imagen_url || 'https://placehold.co/900x420'})` }}
+                      >
+                        <div className="news-slide-overlay">
+                          <p className="news-slide-date">Resumen {new Date(news.fecha).toLocaleDateString()}</p>
+                          <h3 className="news-slide-title">{news.titulo}</h3>
+                          <p className="news-slide-summary">{news.resumen || 'Sin resumen disponible.'}</p>
+                          {Array.isArray(news.resumen_puntos) && news.resumen_puntos.length > 0 && (
+                            <ul className="news-slide-points">
+                              {news.resumen_puntos.slice(0, 3).map((punto, idx) => (
+                                <li key={idx}>{punto}</li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </article>
                     </div>
-                    <div style={{ alignSelf: 'stretch', color: 'rgba(255,255,255,0.80)', fontSize: '15px', fontFamily: 'Playfair Display', fontWeight: 500, lineHeight: '28px', wordWrap: 'break-word', padding: '0 16px 16px 16px' }}>
-                      {news.resumen}<br />
-                      {news.resumen_puntos && Array.isArray(news.resumen_puntos) && news.resumen_puntos.map((punto, idx) => (
-                        <span key={idx}>{punto}<br /></span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            )}
-          </div>
+
+              {maxNoticiaStart > 0 && (
+                <button
+                  type="button"
+                  className="carousel-nav carousel-nav-next"
+                  aria-label="Siguiente noticia"
+                  onClick={() =>
+                    setNoticiaSlideIndex((prev) => (prev >= maxNoticiaStart ? 0 : prev + 1))
+                  }
+                >
+                  ›
+                </button>
+              )}
+            </div>
+          )}
+
+          {maxNoticiaStart > 0 && (
+            <div className="carousel-dots" aria-label="Indicadores de noticias">
+              {Array.from({ length: maxNoticiaStart + 1 }).map((_, idx) => (
+                <button
+                  key={`news-dot-${idx}`}
+                  type="button"
+                  className={`carousel-dot ${idx === currentNoticiaSlideIndex ? 'is-active' : ''}`}
+                  onClick={() => setNoticiaSlideIndex(idx)}
+                  aria-label={`Ir al grupo ${idx + 1} de noticias`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>
