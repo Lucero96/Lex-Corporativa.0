@@ -64,11 +64,15 @@
 }
 
 .about-hero-content {
-  background: linear-gradient(155deg, #060046 0%, #08034f 52%, #0a0360 100%);
+  position: relative;
+  background-image: linear-gradient(160deg, rgba(6, 0, 70, 0.78), rgba(2, 50, 90, 0.74)), url('/assets/sobre-nosotros2.png');
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2.4rem;
+  overflow: hidden;
 }
 
 .about-hero-copy {
@@ -78,6 +82,8 @@
   border-radius: 1rem;
   padding: 2rem 2.1rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 3;
 }
 
 .about-hero-copy .section-label {
