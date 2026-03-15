@@ -6,15 +6,16 @@
   right: 0;
   z-index: 50;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 2rem 0;
-  background: transparent;
+  padding: 1.4rem 0;
+  background: #0B0332;
+  border-bottom: 1px solid rgba(232, 220, 196, 0.16);
 }
 
 .navbar.scrolled {
-  background: linear-gradient(135deg, rgba(11, 3, 50, 0.95), rgba(20, 10, 70, 0.95));
+  background: rgba(11, 3, 50, 0.96);
   backdrop-filter: blur(12px);
   padding: 1rem 0;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
 }
 
 .navbar-content {
@@ -40,32 +41,30 @@
   height: 5rem;
   background: linear-gradient(135deg, #E8DCC4, #C6A75E);
   border-radius: 50%;
-  border: 2px solid #C6A75E; /* Reduced border thickness */
+  border: 2px solid rgba(232, 220, 196, 0.65);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: visible; /* Ensure no clipping occurs */
+  overflow: hidden;
   font-family: 'Playfair Display', serif;
   font-weight: 900;
   font-size: 1.5rem;
   color: #0B0332;
   letter-spacing: -0.05em;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28);
 }
 
 .logo-image {
   position: absolute;
-  top: 5%; /* Adjusted to move the image slightly forward */
-  left: 5%; /* Centered with a slight offset */
-  transform: translate(-5%, -5%);
-  height: 100%;
-  width: auto;
+  inset: 0;
   cursor: pointer;
-  clip-path: circle(50%); /* Ensure the image is circular */
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Maintain aspect ratio and fill the circle */
+  object-fit: cover;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transform: translateZ(0);
 }
 
 .logo-text {
@@ -105,9 +104,7 @@
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.3em;
-  .card-author {
-    margin-top: 1rem; /* Adjust the value to increase or decrease the space */
-  }  font-family: 'Playfair Display', serif; /* Updated font to match the provided style */
+  font-family: 'Playfair Display', serif;
 }
 
 .nav-links button:hover,

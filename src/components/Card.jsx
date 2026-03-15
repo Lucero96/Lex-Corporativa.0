@@ -14,7 +14,7 @@ const Card = ({ titulo, escritores, fecha, imagen_url, documento_url }) => {
       </div>
       <div className="card-footer">
         {documento_url && (
-          <button className="card-button" onClick={() => window.open(documento_url, '_blank')}>Ver Documento</button>
+          <button className="card-button btn-lex btn-lex-light" onClick={() => window.open(documento_url, '_blank')}>Ver Documento</button>
         )}
       </div>
     </div>

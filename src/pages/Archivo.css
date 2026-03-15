@@ -1,7 +1,24 @@
+.archivo-page {
+  position: relative;
+  min-height: 100vh;
+  background: #02325aeb;
+  overflow: hidden;
+}
+
+.archivo-network-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
 /* ========== PAGE LAYOUT ========== */
 .page-content {
   min-height: 100vh;
   padding: 8rem 0 6rem;
+  position: relative;
+  z-index: 2;
 }
 
 .page-header {
@@ -22,6 +39,56 @@
   color: #E8DCC4;
 }
 
+.page-subtitle {
+  margin-top: 0.95rem;
+  color: rgba(232, 220, 196, 0.9);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 58rem;
+}
+
+.archivo-filters {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 0.9rem;
+  margin-bottom: 0.85rem;
+}
+
+.archivo-filter-input,
+.archivo-filter-select {
+  width: 100%;
+  height: 46px;
+  padding: 0 0.95rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(232, 220, 196, 0.28);
+  border-radius: 8px;
+  color: #E8DCC4;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
+}
+
+.archivo-filter-input::placeholder {
+  color: rgba(232, 220, 196, 0.65);
+}
+
+.archivo-filter-input:focus,
+.archivo-filter-select:focus {
+  border-color: #C5A059;
+  box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.archivo-filter-select option {
+  color: #0B0332;
+}
+
+.archivo-filter-results {
+  color: rgba(232, 220, 196, 0.82);
+  font-size: 0.92rem;
+  margin: 0 0 1.5rem;
+}
+
 /* ========== PUBLICATIONS GRID ========== */
 .publications-grid {
   display: grid;
@@ -39,7 +106,7 @@
 .pub-cover {
   aspect-ratio: 3/4;
   overflow: hidden;
-  background: #1e293b;
+  background: #02325aeb;
   margin-bottom: 2rem;
   cursor: pointer;
   position: relative;
@@ -141,9 +208,17 @@
   .page-title {
     font-size: 2.5rem;
   }
+
+  .archivo-filters {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 768px) {
+  .archivo-network-canvas {
+    opacity: 0.65;
+  }
+
   .publications-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
@@ -159,6 +234,14 @@
 
   .page-title {
     font-size: 2rem;
+  }
+
+  .page-subtitle {
+    font-size: 1rem;
+  }
+
+  .archivo-filters {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -273,30 +356,22 @@
   align-self: center;
   padding: 0.625rem 1.5rem;
   font-size: 0.875rem;
-  border: 1px solid #80cc66;
-  color: #80cc66;
-  background: transparent;
-  border-radius: 0.375rem;
   transition: all 0.3s ease;
   display: inline-block;
-  cursor: pointer;
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .card-button:hover {
-  background: #80cc66;
-  color: #0B0332;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(128, 204, 102, 0.3);
+  box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
 }
 
 .close-button {
   position: absolute;
   top: 20px;
   right: 20px;
-  background: linear-gradient(135deg, #80cc66 0%, #6ab350 100%);
+  background: #C5A059;
   color: #0B0332;
   border: none;
   border-radius: 50%;
@@ -308,15 +383,15 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(128, 204, 102, 0.3);
+  box-shadow: 0 4px 12px rgba(197, 160, 89, 0.35);
   transition: all 0.3s ease;
   z-index: 1001;
 }
 
 .close-button:hover {
-  background: linear-gradient(135deg, #6ab350 0%, #5a9e42 100%);
+  background: #d2b070;
   transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(128, 204, 102, 0.4);
+  box-shadow: 0 6px 16px rgba(197, 160, 89, 0.45);
 }
 
 .publicaciones-title {
@@ -368,6 +443,10 @@
 }
 
 @media (max-width: 768px) {
+  .archivo-network-canvas {
+    opacity: 0.65;
+  }
+
   .cards-container {
     gap: 20px;
   }

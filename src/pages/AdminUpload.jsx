@@ -82,7 +82,7 @@ const AdminUpload = () => {
             </div>
           </div>
 
-          <button type="submit" className="submit-btn">Publicar ahora</button>
+          <button type="submit" className="submit-btn btn-lex btn-lex-dark">Publicar ahora</button>
         </form>
         {message && <p className="message">{message}</p>}
       </div>

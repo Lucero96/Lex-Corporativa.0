@@ -33,6 +33,39 @@ button {
   font-family: 'Inter', sans-serif;
 }
 
+.btn-lex {
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.95rem 1.8rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: opacity 0.22s ease, filter 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.btn-lex:hover {
+  opacity: 0.96;
+  filter: brightness(1.06);
+}
+
+.btn-lex:active {
+  transform: translateY(1px);
+}
+
+.btn-lex-dark {
+  background: #C5A059;
+  color: #0B0332;
+  border-color: #C5A059;
+}
+
+.btn-lex-light {
+  background: #0B0332;
+  color: #E8DCC4;
+  border-color: #0B0332;
+}
+
 /* ========== COMMON COMPONENTS ========== */
 .section-label {
   font-size: 0.625rem;
