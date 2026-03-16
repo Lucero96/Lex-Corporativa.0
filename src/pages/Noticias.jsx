@@ -231,11 +231,11 @@ const Noticias = () => {
                     <p className="noticia-grid-date">Resumen {new Date(pub.fecha).toLocaleDateString()}</p>
                     <h2 className="noticia-grid-title">{pub.titulo}</h2>
                     <p className="noticia-grid-author">{pub.escritores || 'Lex Corporativa'}</p>
-                    <p className="noticia-grid-summary">{pub.resumen || ''}</p>
+                    <p className="noticia-grid-summary">{pub.resumen_p?.[0] || ''}</p>
 
-                    {Array.isArray(pub.resumen_puntos) && pub.resumen_puntos.length > 0 && (
+                    {Array.isArray(pub.resumen_p) && pub.resumen_p.length > 1 && (
                       <ul className="noticia-grid-points">
-                        {pub.resumen_puntos.slice(0, 3).map((punto, idx) => (
+                        {pub.resumen_p.slice(1, 3).map((punto, idx) => (
                           <li key={idx}>{punto}</li>
                         ))}
                       </ul>

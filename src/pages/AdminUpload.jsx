@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import './Upload.css';
 
@@ -29,6 +30,7 @@ const AdminUpload = () => {
   const [saving, setSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
+  const [selectedPdf, setSelectedPdf] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM);
 
   const categoryById = useMemo(
@@ -159,6 +161,9 @@ const AdminUpload = () => {
   };
 
   const handleDelete = async (recordId) => {
+    const shouldDelete = window.confirm('Esta seguro de eliminar este registro? Esta accion no se puede deshacer.');
+    if (!shouldDelete) return;
+
     const targetTable = activeTab === 'publicaciones' ? 'lex_articulos' : 'lex_noticias';
     const { error } = await supabase.from(targetTable).delete().eq('id', recordId);
     if (error) {
@@ -170,6 +175,24 @@ const AdminUpload = () => {
       await fetchArticulos();
     } else {
       await fetchNoticias();
+    }
+  };
+
+  const getPublicacionPdfUrl = (item) => item?.pdf_url || item?.documento_url || '';
+  const getNoticiaPdfUrl = (item) => item?.pdf_url || '';
+
+  const openPdfViewer = (pdfUrl) => {
+    if (!pdfUrl) return;
+    setSelectedPdf(pdfUrl);
+  };
+
+  const closePdfViewer = () => {
+    setSelectedPdf(null);
+  };
+
+  const handlePdfBackdropClick = (event) => {
+    if (event.target.classList.contains('admin-pdf-viewer')) {
+      closePdfViewer();
     }
   };
 
@@ -364,11 +387,46 @@ const AdminUpload = () => {
                         <td>{item.fecha}</td>
                         <td>
                           <div className="admin-actions">
-                            <button type="button" className="admin-action-btn" onClick={() => openEditModal(item)}>
-                              Editar
+                            {getPublicacionPdfUrl(item) ? (
+                              <button
+                                type="button"
+                                className="admin-action-btn"
+                                onClick={() => openPdfViewer(getPublicacionPdfUrl(item))}
+                                aria-label="Ver PDF"
+                                title="Ver PDF"
+                              >
+                                <Eye size={18} />
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="admin-action-btn is-disabled"
+                                aria-label="PDF no disponible"
+                                title="PDF no disponible"
+                                disabled
+                              >
+                                <Eye size={18} />
+                              </button>
+                            )}
+
+                            <button
+                              type="button"
+                              className="admin-action-btn"
+                              onClick={() => openEditModal(item)}
+                              aria-label="Editar"
+                              title="Editar"
+                            >
+                              <Pencil size={18} />
                             </button>
-                            <button type="button" className="admin-action-btn is-danger" onClick={() => handleDelete(item.id)}>
-                              Eliminar
+
+                            <button
+                              type="button"
+                              className="admin-action-btn is-danger"
+                              onClick={() => handleDelete(item.id)}
+                              aria-label="Eliminar"
+                              title="Eliminar"
+                            >
+                              <Trash2 size={18} />
                             </button>
                           </div>
                         </td>
@@ -390,11 +448,46 @@ const AdminUpload = () => {
                         <td>{item.fecha}</td>
                         <td>
                           <div className="admin-actions">
-                            <button type="button" className="admin-action-btn" onClick={() => openEditModal(item)}>
-                              Editar
+                            {getNoticiaPdfUrl(item) ? (
+                              <button
+                                type="button"
+                                className="admin-action-btn"
+                                onClick={() => openPdfViewer(getNoticiaPdfUrl(item))}
+                                aria-label="Ver PDF"
+                                title="Ver PDF"
+                              >
+                                <Eye size={18} />
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="admin-action-btn is-disabled"
+                                aria-label="PDF no disponible"
+                                title="PDF no disponible"
+                                disabled
+                              >
+                                <Eye size={18} />
+                              </button>
+                            )}
+
+                            <button
+                              type="button"
+                              className="admin-action-btn"
+                              onClick={() => openEditModal(item)}
+                              aria-label="Editar"
+                              title="Editar"
+                            >
+                              <Pencil size={18} />
                             </button>
-                            <button type="button" className="admin-action-btn is-danger" onClick={() => handleDelete(item.id)}>
-                              Eliminar
+
+                            <button
+                              type="button"
+                              className="admin-action-btn is-danger"
+                              onClick={() => handleDelete(item.id)}
+                              aria-label="Eliminar"
+                              title="Eliminar"
+                            >
+                              <Trash2 size={18} />
                             </button>
                           </div>
                         </td>
@@ -490,6 +583,22 @@ const AdminUpload = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      ) : null}
+
+      {selectedPdf ? (
+        <div className="admin-pdf-viewer" role="presentation" onClick={handlePdfBackdropClick}>
+          <div className="admin-pdf-container" role="dialog" aria-modal="true" aria-label="Vista previa del PDF">
+            <button
+              type="button"
+              className="admin-pdf-close"
+              onClick={closePdfViewer}
+              aria-label="Cerrar visor PDF"
+            >
+              ×
+            </button>
+            <iframe src={selectedPdf} title="Visor de PDF" />
           </div>
         </div>
       ) : null}
