@@ -18,9 +18,8 @@ const Noticias = () => {
   useEffect(() => {
     const fetchPublicaciones = async () => {
       let query = supabase
-        .from('publicaciones')
+        .from('lex_noticias')
         .select('*')
-        .eq('tipo', 'noticia')
         .order('fecha', { ascending: false });
 
       if (activeFilter === 'este-mes') {
@@ -184,8 +183,8 @@ const Noticias = () => {
   };
 
   const openPdfFromPublication = (pub) => {
-    if (pub?.documento_url) {
-      setSelectedPdf(pub.documento_url);
+    if (pub?.pdf_url) {
+      setSelectedPdf(pub.pdf_url);
     }
   };
 
@@ -246,9 +245,9 @@ const Noticias = () => {
                       type="button"
                       className="noticia-grid-action"
                       onClick={() => openPdfFromPublication(pub)}
-                      disabled={!pub.documento_url}
+                      disabled={!pub.pdf_url}
                     >
-                      {pub.documento_url ? 'Ver Documento' : 'Sin Documento'}
+                      {pub.pdf_url ? 'Ver Noticia' : 'No disponible'}
                     </button>
                   </div>
                 </article>

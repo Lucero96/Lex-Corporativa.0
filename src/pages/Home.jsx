@@ -28,9 +28,8 @@ const Home = ({ onNavigate }) => {
   useEffect(() => {
     const fetchHomeData = async () => {
       const { data: noticiasData, error: noticiasError } = await supabase
-        .from('publicaciones')
+        .from('lex_noticias')
         .select('*')
-        .eq('tipo', 'noticia')
         .order('fecha', { ascending: false })
         .limit(10);
 
@@ -41,9 +40,8 @@ const Home = ({ onNavigate }) => {
       }
 
       const { data: archivosData, error: archivosError } = await supabase
-        .from('publicaciones')
+        .from('lex_articulos')
         .select('*')
-        .neq('tipo', 'noticia')
         .order('fecha', { ascending: false })
         .limit(10);
 

@@ -1,186 +1,519 @@
-/* Upload.css */
-.admin-container {
+.admin-page {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   min-height: 100vh;
-  background-color: #0d1117; /* Fondo tipo GitHub Dark */
-  padding: 20px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #f3f3f5;
+  color: #0b1a3f;
 }
 
-.admin-card {
-  background: #161b22;
+.admin-header-content.container,
+.admin-main.container,
+.admin-footer-content.container {
+  max-width: 1280px;
   width: 100%;
-  max-width: 600px; 
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-  border: 1px solid #30363d;
 }
 
-.admin-card h1 {
-  color: #ffffff;
-  font-size: 1.8rem;
-  margin-bottom: 8px;
-  text-align: center;
-  letter-spacing: -0.5px;
+.admin-header {
+  position: relative;
+  z-index: 20;
+  padding: 1.4rem 0;
+  background: #0B0332;
+  border-bottom: 1px solid rgba(232, 220, 196, 0.16);
 }
 
-.subtitle {
-  color: #8b949e;
-  text-align: center;
-  margin-bottom: 35px;
-  font-size: 0.95rem;
+.admin-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.upload-form {
+.admin-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-logo-circle {
+  width: 5rem;
+  height: 5rem;
+  background: linear-gradient(135deg, #E8DCC4, #C6A75E);
+  border-radius: 50%;
+  border: 2px solid rgba(232, 220, 196, 0.65);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28);
+}
+
+.admin-logo-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translateZ(0);
+}
+
+.admin-logo-text {
   display: flex;
   flex-direction: column;
-  gap: 24px; /* Más espacio entre filas */
+  align-items: flex-start;
+  font-family: 'Playfair Display', serif;
+  color: #E8DCC4;
 }
 
-.form-row, .file-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+.admin-logo-main {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.admin-logo-sub {
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  margin-top: -5px;
 }
 
-.form-group label {
-  color: #f0f6fc;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-left: 2px;
-}
-
-.form-group input, 
-.form-group select {
-  background: #0d1117;
-  border: 1px solid #484f58; /* Borde un poco más visible */
-  color: #c9d1d9;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #58a6ff;
-  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
-  background: #161b22;
-}
-
-/* === ESTILO PARA INPUT DE ARCHIVO (LA CLAVE) === */
-input[type="file"] {
-  padding: 8px;
-  background: #21262d;
-  border: 1px dashed #484f58;
-  cursor: pointer;
-}
-
-/* Estilo del botón interno de "Seleccionar archivo" */
-input[type="file"]::file-selector-button {
-  background: #30363d;
-  color: #c9d1d9;
-  border: 1px solid #484f58;
-  padding: 5px 12px;
-  border-radius: 6px;
-  margin-right: 12px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: 0.2s;
-}
-
-input[type="file"]::file-selector-button:hover {
-  background: #484f58;
-}
-
-/* Botón Principal */
-.submit-btn {
+.admin-logout-btn {
+  border: none;
+  background: #C5A059;
   color: #0B0332;
-  padding: 14px;
+  border-radius: 0.7rem;
+  padding: 0.78rem 1.25rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.9rem;
   font-weight: 700;
-  font-size: 1rem;
-  margin-top: 15px;
-  box-shadow: 0 4px 15px rgba(197, 160, 89, 0.28);
-  transition: transform 0.1s, filter 0.2s, box-shadow 0.2s;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.submit-btn:hover {
-  box-shadow: 0 7px 18px rgba(197, 160, 89, 0.38);
+.admin-logout-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(197, 160, 89, 0.34);
 }
 
-.submit-btn:active {
-  transform: scale(0.98);
+.admin-main {
+  flex: 1;
+  padding-top: 1.4rem;
+  padding-bottom: 2.4rem;
 }
 
-.message {
-  margin-top: 20px;
-  padding: 12px;
-  border-radius: 8px;
-  background: rgba(88, 166, 255, 0.1);
-  color: #58a6ff;
+.admin-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-kpi-card {
+  border-radius: 0.9rem;
+  padding: 1.3rem 1.2rem;
+  box-shadow: 0 12px 24px rgba(10, 12, 26, 0.12);
+}
+
+.admin-kpi-card-primary {
+  background: #12285a;
+  color: #F5F5F5;
+}
+
+.admin-kpi-card-gold {
+  background: #C5A059;
+  color: #ffffff;
+}
+
+.admin-kpi-number {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.admin-kpi-label {
+  margin: 0.45rem 0 0;
+  font-size: 0.95rem;
+}
+
+.admin-tabs {
+  margin-top: 1.15rem;
+  border-bottom: 1px solid #d9deea;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.admin-tab {
+  border: none;
+  background: transparent;
+  color: #4b5470;
+  padding: 0.8rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.admin-tab.is-active {
+  color: #11275a;
+  border-bottom-color: #C5A059;
+}
+
+.admin-table-block {
+  margin-top: 1rem;
+  background: #ffffff;
+  border-radius: 0.9rem;
+  padding: 1rem;
+  width: 100%;
+  box-shadow: 0 12px 26px rgba(6, 15, 33, 0.1);
+}
+
+.admin-table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.8rem;
+}
+
+.admin-table-toolbar h2 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  color: #0B0332;
+  font-size: 2.05rem;
+}
+
+.admin-create-btn {
+  border: none;
+  background: #C5A059;
+  color: #0B0332;
+  font-weight: 800;
+  border-radius: 0.6rem;
+  padding: 0.65rem 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(197, 160, 89, 0.35);
+}
+
+.admin-create-btn:hover {
+  filter: brightness(1.06);
+}
+
+.admin-error {
+  margin: 0.2rem 0 0.9rem;
+  color: #9d1f1f;
+  background: #f9e9e9;
+  border-radius: 0.55rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.92rem;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+.admin-table thead th {
+  text-align: left;
+  background: #0c2c62;
+  color: #ffffff;
+  padding: 0.85rem 0.95rem;
+  font-size: 0.92rem;
+}
+
+.admin-table thead th:first-child {
+  border-top-left-radius: 0.55rem;
+}
+
+.admin-table thead th:last-child {
+  border-top-right-radius: 0.55rem;
+}
+
+.admin-table tbody td {
+  padding: 0.82rem 0.95rem;
+  border-bottom: 1px solid #e5e8f2;
+  color: #1c2545;
+  font-size: 0.93rem;
+}
+
+.admin-empty {
   text-align: center;
+  color: #6d7591;
+}
+
+.admin-category-pill {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  background: rgba(197, 160, 89, 0.28);
+  color: #5e4612;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.admin-actions {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.admin-action-btn {
+  border: 1px solid #c9cfde;
+  background: #ffffff;
+  color: #1f2a4a;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.42rem;
+  cursor: pointer;
+}
+
+.admin-action-btn.is-danger {
+  border-color: #ebc6c6;
+  color: #9d2020;
+}
+
+.admin-news-thumb {
+  width: 6rem;
+  height: 3.9rem;
+  object-fit: cover;
+  border-radius: 0.4rem;
+  border: 1px solid #d2d8e6;
+  display: block;
+}
+
+.admin-news-summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #2d3657;
+}
+
+.admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(8, 10, 22, 0.56);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.admin-modal {
+  width: min(100%, 44rem);
+  max-height: min(90vh, 48rem);
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 0.9rem;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.38);
+}
+
+.admin-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid #e4e7f0;
+}
+
+.admin-modal-header h3 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  color: #0B0332;
+  font-size: 1.9rem;
+}
+
+.admin-modal-close {
+  border: none;
+  background: transparent;
+  color: #0B0332;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.admin-modal-form {
+  padding: 1rem 1.1rem 1.2rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-modal-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: #17203d;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.admin-modal-form input,
+.admin-modal-form select,
+.admin-modal-form textarea {
+  border: 1px solid #cfd5e2;
+  border-radius: 0.55rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+  color: #101b3a;
+}
+
+.admin-modal-form input:focus,
+.admin-modal-form select:focus,
+.admin-modal-form textarea:focus {
+  outline: none;
+  border-color: #C5A059;
+  box-shadow: 0 0 0 1px rgba(197, 160, 89, 0.2);
+}
+
+.admin-modal-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.admin-secondary-btn {
+  border: 1px solid #ccd3e2;
+  background: #ffffff;
+  color: #1b2647;
+  border-radius: 0.55rem;
+  padding: 0.55rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-primary-btn {
+  border: none;
+  background: #0B2A61;
+  color: #ffffff;
+  border-radius: 0.55rem;
+  padding: 0.55rem 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-primary-btn:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
+.admin-footer {
+  margin-top: auto;
+  background: #0B0332;
+  border-top: 1px solid rgba(232, 220, 196, 0.16);
+  padding: 1.6rem 0;
+}
+
+.admin-footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+.admin-footer-brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  max-width: 34rem;
+}
+
+.admin-footer-logo {
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 220, 196, 0.45);
+  color: #E8DCC4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.admin-footer-title {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  color: #E8DCC4;
+  letter-spacing: 0.02em;
+  font-size: 1.2rem;
+}
+
+.admin-footer-description {
+  margin: 0.35rem 0 0;
+  color: rgba(232, 220, 196, 0.78);
+  line-height: 1.6;
   font-size: 0.9rem;
 }
-/* ... (el resto del código igual hasta llegar a .form-row) ... */
 
-.form-row, .file-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  /* IMPORTANTE: Evita que la cuadrícula se expanda más que el padre */
-  min-width: 0; 
-  width: 100%;
+.admin-footer-contact h4 {
+  margin: 0;
+  color: #E8DCC4;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  /* Obliga al grupo a respetar el ancho de la columna del grid */
-  min-width: 0; 
+.admin-footer-contact p {
+  margin: 0.3rem 0 0;
+  color: rgba(232, 220, 196, 0.82);
+  font-size: 0.9rem;
 }
 
-/* === SOLUCIÓN FINAL PARA EL DESBORDAMIENTO === */
-input[type="file"] {
-  padding: 8px;
-  background: #21262d;
-  border: 1px dashed #484f58;
-  cursor: pointer;
-  /* Estas 3 líneas evitan que el texto empuje el borde hacia afuera */
-  width: 100%;
-  box-sizing: border-box;
-  overflow: hidden; 
-  white-space: nowrap;
-  text-overflow: ellipsis; /* Pone "..." si el nombre es muy largo */
-}
+@media (max-width: 768px) {
+  .admin-logo-circle {
+    width: 4rem;
+    height: 4rem;
+  }
 
-/* Ajuste del botón interno para que no use tanto espacio */
-input[type="file"]::file-selector-button {
-  background: #30363d;
-  color: #c9d1d9;
-  border: 1px solid #484f58;
-  padding: 5px 10px;
-  border-radius: 6px;
-  margin-right: 10px;
-  cursor: pointer;
-  font-size: 0.75rem; /* Un poco más pequeño ayuda al espacio */
-  transition: 0.2s;
-  flex-shrink: 0; /* No permite que el botón se deforme */
-}
+  .admin-logo-main {
+    font-size: 2rem;
+  }
 
-/* Responsivo: Si la pantalla es muy pequeña (< 500px), 
-   mejor poner uno abajo del otro para evitar colisiones */
-@media (max-width: 550px) {
-  .form-row, .file-section {
+  .admin-logo-sub {
+    font-size: 1.2rem;
+  }
+
+  .admin-logout-btn {
+    font-size: 0.8rem;
+    padding: 0.65rem 0.9rem;
+  }
+
+  .admin-kpis {
     grid-template-columns: 1fr;
+  }
+
+  .admin-table-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-table-toolbar h2 {
+    font-size: 1.8rem;
+  }
+
+  .admin-footer-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-header {
+    padding: 1rem 0;
+  }
+
+  .admin-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .admin-logo-container {
+    gap: 0.75rem;
   }
 }

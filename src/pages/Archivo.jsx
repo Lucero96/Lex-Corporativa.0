@@ -25,7 +25,7 @@ const Archivo = () => {
     return Array.from(
       new Set(
         publicaciones
-          .map((pub) => (pub.categoria || '').trim())
+          .map((pub) => (pub.lex_categorias?.nombre || '').trim())
           .filter((category) => category.length > 0)
       )
     ).sort((a, b) => a.localeCompare(b));
@@ -36,12 +36,12 @@ const Archivo = () => {
 
     return publicaciones.filter((pub) => {
       const pubYear = pub.fecha ? String(new Date(pub.fecha).getFullYear()) : '';
-      const pubCategory = (pub.categoria || '').trim();
+      const pubCategory = (pub.lex_categorias?.nombre || '').trim();
 
       const matchesYear = yearFilter === 'all' || pubYear === yearFilter;
       const matchesCategory = categoryFilter === 'all' || pubCategory === categoryFilter;
 
-      const searchableText = [pub.titulo, pub.escritores, pub.categoria, pub.resumen]
+      const searchableText = [pub.titulo, pub.autor_nombre, pub.lex_categorias?.nombre, pub.resumen]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
@@ -54,19 +54,22 @@ const Archivo = () => {
   useEffect(() => {
     const fetchPublicaciones = async () => {
       const { data, error } = await supabase
-        .from('publicaciones')
-        .select('*')
-        .neq('tipo', 'noticia');
+        .from('lex_articulos')
+        .select('*, lex_categorias(nombre)');
 
       if (error) {
         console.error('Error fetching publicaciones:', error);
       } else {
-        setPublicaciones(data);
+        setPublicaciones(data || []);
       }
     };
 
     fetchPublicaciones();
   }, []);
+
+  useEffect(() => {
+    console.log('Data en Archivo:', publicaciones);
+  }, [publicaciones]);
 
   useEffect(() => {
     const sectionEl = archivoPageRef.current;
@@ -194,8 +197,8 @@ const Archivo = () => {
     };
   }, []);
 
-  const handleCloseViewer = (e) => {
-    if (e.target.classList.contains('pdf-viewer')) {
+  const handleCloseViewer = (event) => {
+    if (event.target.classList.contains('pdf-viewer')) {
       setSelectedPdf(null);
     }
   };
@@ -258,20 +261,28 @@ const Archivo = () => {
 
           <div className="archivo-content">
             <div className="cards-container">
-              {filteredPublicaciones.map((pub) => (
-                <div key={pub.id} className="card">
+              {filteredPublicaciones.map((item) => (
+                <div key={item.id} className="card">
                   <div className="card-header">
-                    <span className="card-category">{pub.categoria}</span>
-                    {pub.imagen_url && <img src={pub.imagen_url} alt={pub.titulo} className="card-image" />}
+                    <span className="card-category">{item.lex_categorias?.nombre || 'Sin categoría'}</span>
+                    {item.imagen_url && <img src={item.imagen_url} alt={item.titulo} className="card-image" />}
                   </div>
                   <div className="card-body">
-                    <h2 className="card-title">{pub.titulo}</h2>
-                    <p className="card-author">{pub.escritores}</p>
-                    <p className="card-date">{new Date(pub.fecha).toLocaleDateString()}</p>
-                    {pub.documento_url && (
-                      <button onClick={() => setSelectedPdf(pub.documento_url)} className="card-button btn-lex btn-lex-dark">
+                    <h2 className="card-title">{item.titulo}</h2>
+                    <p className="card-author">{item.autor_nombre || 'Autor no especificado'}</p>
+                    <p className="card-date">{item.fecha ? new Date(item.fecha).toLocaleDateString() : 'Fecha no disponible'}</p>
+                    {item.pdf_url ? (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPdf(item.pdf_url)}
+                        className="card-button btn-lex btn-lex-dark"
+                      >
                         Leer Documento
                       </button>
+                    ) : (
+                      <span className="card-button btn-lex btn-lex-dark" aria-disabled="true">
+                        No disponible
+                      </span>
                     )}
                   </div>
                 </div>
@@ -284,13 +295,10 @@ const Archivo = () => {
       {selectedPdf && (
         <div className="pdf-viewer" onClick={handleCloseViewer}>
           <div className="pdf-container">
-            <iframe
-              src={selectedPdf}
-              width="80%"
-              height="80%"
-              title="PDF Viewer"
-            ></iframe>
-            <button className="close-button" onClick={() => setSelectedPdf(null)}>×</button>
+            <button className="close-button" onClick={() => setSelectedPdf(null)} type="button" aria-label="Cerrar visor">
+              ×
+            </button>
+            <iframe src={selectedPdf} title="Vista previa del documento" />
           </div>
         </div>
       )}
