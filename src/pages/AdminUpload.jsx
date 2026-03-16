@@ -334,6 +334,7 @@ const AdminUpload = () => {
               <thead>
                 {activeTab === 'publicaciones' ? (
                   <tr>
+                    <th>Miniatura</th>
                     <th>Titulo</th>
                     <th>Autor</th>
                     <th>Categoria</th>
@@ -353,7 +354,7 @@ const AdminUpload = () => {
               <tbody>
                 {activeTab === 'publicaciones' && articulos === null ? (
                   <tr>
-                    <td colSpan={5} className="admin-empty">Cargando publicaciones...</td>
+                    <td colSpan={6} className="admin-empty">Cargando publicaciones...</td>
                   </tr>
                 ) : activeTab === 'noticias' && noticias === null ? (
                   <tr>
@@ -361,7 +362,7 @@ const AdminUpload = () => {
                   </tr>
                 ) : activeTab === 'publicaciones' && loadingArticulos ? (
                   <tr>
-                    <td colSpan={5} className="admin-empty">Cargando publicaciones...</td>
+                    <td colSpan={6} className="admin-empty">Cargando publicaciones...</td>
                   </tr>
                 ) : activeTab === 'noticias' && loadingNoticias ? (
                   <tr>
@@ -369,7 +370,7 @@ const AdminUpload = () => {
                   </tr>
                 ) : activeTab === 'publicaciones' && (articulos || []).length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="admin-empty">No hay registros disponibles.</td>
+                    <td colSpan={6} className="admin-empty">No hay registros disponibles.</td>
                   </tr>
                 ) : activeTab === 'noticias' && (noticias || []).length === 0 ? (
                   <tr>
@@ -379,6 +380,13 @@ const AdminUpload = () => {
                   activeTab === 'publicaciones'
                     ? (articulos || []).map((item) => (
                       <tr key={item.id}>
+                        <td>
+                          <img
+                            src={item.imagen_url || 'https://placehold.co/96x62'}
+                            alt={item.titulo || 'Publicacion'}
+                            className="admin-news-thumb"
+                          />
+                        </td>
                         <td>{item.titulo}</td>
                         <td>{item.autor_nombre}</td>
                         <td>
