@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, FileText, Newspaper, Pencil, Trash2 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
@@ -12,6 +12,44 @@ const INITIAL_FORM = {
   imagen_url: '',
   pdf_url: '',
   resumen_p: ''
+};
+
+const MONTH_OPTIONS = [
+  { value: '1', label: 'Enero' },
+  { value: '2', label: 'Febrero' },
+  { value: '3', label: 'Marzo' },
+  { value: '4', label: 'Abril' },
+  { value: '5', label: 'Mayo' },
+  { value: '6', label: 'Junio' },
+  { value: '7', label: 'Julio' },
+  { value: '8', label: 'Agosto' },
+  { value: '9', label: 'Septiembre' },
+  { value: '10', label: 'Octubre' },
+  { value: '11', label: 'Noviembre' },
+  { value: '12', label: 'Diciembre' }
+];
+
+const getDateParts = (rawDate) => {
+  if (!rawDate) return { year: '', month: '' };
+
+  const raw = String(rawDate).trim();
+  const match = raw.match(/^(\d{4})-(\d{2})/);
+  if (match) {
+    return {
+      year: match[1],
+      month: String(Number(match[2]))
+    };
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) {
+    return { year: '', month: '' };
+  }
+
+  return {
+    year: String(parsed.getFullYear()),
+    month: String(parsed.getMonth() + 1)
+  };
 };
 
 const AdminUpload = () => {
@@ -34,8 +72,81 @@ const AdminUpload = () => {
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [selectedPdfFile, setSelectedPdfFile] = useState(null);
+  const [publicationFilters, setPublicationFilters] = useState({
+    search: '',
+    categoria: '',
+    year: '',
+    month: ''
+  });
+  const [newsFilters, setNewsFilters] = useState({
+    search: '',
+    year: '',
+    month: ''
+  });
   const adminPageRef = useRef(null);
   const adminCanvasRef = useRef(null);
+
+  const availableYears = useMemo(() => {
+    const yearsSet = new Set();
+
+    (articulos || []).forEach((item) => {
+      const { year } = getDateParts(item.fecha);
+      if (year) yearsSet.add(year);
+    });
+
+    return Array.from(yearsSet).sort((a, b) => Number(b) - Number(a));
+  }, [articulos]);
+
+  const filteredArticulos = useMemo(() => {
+    const normalizedSearch = publicationFilters.search.trim().toLowerCase();
+
+    return (articulos || []).filter((item) => {
+      const titulo = String(item.titulo || '').toLowerCase();
+      const autor = String(item.autor_nombre || '').toLowerCase();
+      const categoriaId = String(item.categoria_id || '');
+      const { year, month } = getDateParts(item.fecha);
+
+      const matchesSearch = !normalizedSearch
+        || titulo.includes(normalizedSearch)
+        || autor.includes(normalizedSearch);
+      const matchesCategory = !publicationFilters.categoria || categoriaId === publicationFilters.categoria;
+      const matchesYear = !publicationFilters.year || year === publicationFilters.year;
+      const matchesMonth = !publicationFilters.month || month === publicationFilters.month;
+
+      return matchesSearch && matchesCategory && matchesYear && matchesMonth;
+    });
+  }, [articulos, publicationFilters]);
+
+  const availableNewsYears = useMemo(() => {
+    const yearsSet = new Set();
+
+    (noticias || []).forEach((item) => {
+      const { year } = getDateParts(item.fecha);
+      if (year) yearsSet.add(year);
+    });
+
+    return Array.from(yearsSet).sort((a, b) => Number(b) - Number(a));
+  }, [noticias]);
+
+  const filteredNoticias = useMemo(() => {
+    const normalizedSearch = newsFilters.search.trim().toLowerCase();
+
+    return (noticias || []).filter((item) => {
+      const titulo = String(item.titulo || '').toLowerCase();
+      const resumenText = Array.isArray(item.resumen_p)
+        ? item.resumen_p.join(' ').toLowerCase()
+        : String(item.resumen_p || '').toLowerCase();
+      const { year, month } = getDateParts(item.fecha);
+
+      const matchesSearch = !normalizedSearch
+        || titulo.includes(normalizedSearch)
+        || resumenText.includes(normalizedSearch);
+      const matchesYear = !newsFilters.year || year === newsFilters.year;
+      const matchesMonth = !newsFilters.month || month === newsFilters.month;
+
+      return matchesSearch && matchesYear && matchesMonth;
+    });
+  }, [noticias, newsFilters]);
 
   const fetchCategorias = async () => {
     const { data, error } = await supabase
@@ -348,6 +459,16 @@ const AdminUpload = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handlePublicationFilterChange = (event) => {
+    const { name, value } = event.target;
+    setPublicationFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleNewsFilterChange = (event) => {
+    const { name, value } = event.target;
+    setNewsFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleUpload = async (event, fileType) => {
     const selectedFile = event.target.files?.[0];
     const nextFile = selectedFile || null;
@@ -589,6 +710,12 @@ const AdminUpload = () => {
       </header>
 
       <main className="admin-main container">
+        <section className="admin-hero" aria-label="Cabecera del panel administrativo">
+          <p className="admin-hero-kicker">REPOSITORIO ACADÉMICO</p>
+          <h1 className="admin-hero-title">Panel de Administración</h1>
+          <p className="admin-hero-subtitle">Gestione, edite y organice las publicaciones y noticias del repositorio legal.</p>
+        </section>
+
         <section className="admin-kpis" aria-label="Resumen del panel">
           <article className="admin-kpi-card admin-kpi-card-primary">
             <p className="admin-kpi-number">{totalPublicaciones}</p>
@@ -619,6 +746,90 @@ const AdminUpload = () => {
             Gestionar Noticias
           </button>
         </section>
+
+        {activeTab === 'publicaciones' ? (
+          <section className="admin-filters" aria-label="Filtros dinamicos de publicaciones">
+            <input
+              type="text"
+              name="search"
+              className="admin-filter-control"
+              placeholder="Buscar por título o autores..."
+              value={publicationFilters.search}
+              onChange={handlePublicationFilterChange}
+            />
+
+            <select
+              name="categoria"
+              className="admin-filter-control"
+              value={publicationFilters.categoria}
+              onChange={handlePublicationFilterChange}
+            >
+              <option value="">Todas las categorías</option>
+              {categorias.map((cat) => (
+                <option key={cat.id} value={String(cat.id)}>{cat.nombre}</option>
+              ))}
+            </select>
+
+            <select
+              name="year"
+              className="admin-filter-control"
+              value={publicationFilters.year}
+              onChange={handlePublicationFilterChange}
+            >
+              <option value="">Todos los años</option>
+              {availableYears.map((year) => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+
+            <select
+              name="month"
+              className="admin-filter-control"
+              value={publicationFilters.month}
+              onChange={handlePublicationFilterChange}
+            >
+              <option value="">Todos los meses</option>
+              {MONTH_OPTIONS.map((month) => (
+                <option key={month.value} value={month.value}>{month.label}</option>
+              ))}
+            </select>
+          </section>
+        ) : activeTab === 'noticias' ? (
+          <section className="admin-filters" aria-label="Filtros dinamicos de noticias">
+            <input
+              type="text"
+              name="search"
+              className="admin-filter-control"
+              placeholder="Buscar por título o contenido..."
+              value={newsFilters.search}
+              onChange={handleNewsFilterChange}
+            />
+
+            <select
+              name="year"
+              className="admin-filter-control"
+              value={newsFilters.year}
+              onChange={handleNewsFilterChange}
+            >
+              <option value="">Todos los años</option>
+              {availableNewsYears.map((year) => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+
+            <select
+              name="month"
+              className="admin-filter-control"
+              value={newsFilters.month}
+              onChange={handleNewsFilterChange}
+            >
+              <option value="">Todos los meses</option>
+              {MONTH_OPTIONS.map((month) => (
+                <option key={month.value} value={month.value}>{month.label}</option>
+              ))}
+            </select>
+          </section>
+        ) : null}
 
         <section className="admin-table-block" aria-live="polite">
           <div className="admin-table-toolbar">
@@ -675,13 +886,21 @@ const AdminUpload = () => {
                   <tr>
                     <td colSpan={6} className="admin-empty">No hay registros disponibles.</td>
                   </tr>
+                ) : activeTab === 'publicaciones' && filteredArticulos.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="admin-empty">No hay publicaciones que coincidan con los filtros.</td>
+                  </tr>
                 ) : activeTab === 'noticias' && (noticias || []).length === 0 ? (
                   <tr>
                     <td colSpan={5} className="admin-empty">No hay registros disponibles.</td>
                   </tr>
+                ) : activeTab === 'noticias' && filteredNoticias.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="admin-empty">No hay noticias que coincidan con los filtros.</td>
+                  </tr>
                 ) : (
                   activeTab === 'publicaciones'
-                    ? (articulos || []).map((item) => (
+                    ? filteredArticulos.map((item) => (
                       <tr key={item.id}>
                         <td>
                           <img
@@ -743,7 +962,7 @@ const AdminUpload = () => {
                         </td>
                       </tr>
                     ))
-                    : (noticias || []).map((item) => (
+                    : filteredNoticias.map((item) => (
                       <tr key={item.id}>
                         <td>
                           <img
