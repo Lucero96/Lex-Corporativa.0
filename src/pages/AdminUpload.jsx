@@ -28,6 +28,7 @@ const AdminUpload = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingField, setUploadingField] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalModule, setModalModule] = useState('publicaciones');
   const [editingRecord, setEditingRecord] = useState(null);
   const [selectedPdf, setSelectedPdf] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM);
@@ -128,6 +129,7 @@ const AdminUpload = () => {
 
   const openCreateModal = () => {
     setEditingRecord(null);
+    setModalModule(activeTab);
     setFormData(INITIAL_FORM);
     setSelectedImageFile(null);
     setSelectedPdfFile(null);
@@ -135,10 +137,11 @@ const AdminUpload = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (record) => {
-    const isNoticiasTab = activeTab === 'noticias';
+  const openEditModal = (record, moduleName) => {
+    const isNoticiasTab = moduleName === 'noticias';
 
     setEditingRecord(record);
+    setModalModule(moduleName);
     setFormData({
       titulo: record.titulo || '',
       autor_nombre: isNoticiasTab ? '' : (record.autor_nombre || ''),
@@ -146,7 +149,7 @@ const AdminUpload = () => {
       categoria_id: isNoticiasTab ? '' : (record.categoria_id ? String(record.categoria_id) : ''),
       imagen_url: record.imagen_url || '',
       pdf_url: isNoticiasTab ? (record.pdf_url || '') : (record.pdf_url || record.documento_url || ''),
-      resumen_p: Array.isArray(record.resumen_p) ? record.resumen_p.join(' | ') : (record.resumen_p || '')
+      resumen_p: Array.isArray(record.resumen_p) ? record.resumen_p.join(', ') : (record.resumen_p || '')
     });
     setSelectedImageFile(null);
     setSelectedPdfFile(null);
@@ -157,28 +160,38 @@ const AdminUpload = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingRecord(null);
+    setModalModule(activeTab);
     setFormData(INITIAL_FORM);
     setSelectedImageFile(null);
     setSelectedPdfFile(null);
     setUploadingField('');
   };
 
-  const handleDelete = async (recordId) => {
+  const getTableByModule = (moduleName) => {
+    if (moduleName === 'publicaciones' || moduleName === 'articulos') return 'lex_articulos';
+    return 'lex_noticias';
+  };
+
+  const handleDelete = async (id, moduleName) => {
     const shouldDelete = window.confirm('Esta seguro de eliminar este registro? Esta accion no se puede deshacer.');
     if (!shouldDelete) return;
 
-    const targetTable = activeTab === 'publicaciones' ? 'lex_articulos' : 'lex_noticias';
-    const { error } = await supabase.from(targetTable).delete().eq('id', recordId);
+    const tabla = getTableByModule(moduleName);
+    console.log('Borrando ID:', id, 'de la tabla:', tabla);
+
+    const { error } = await supabase.from(tabla).delete().eq('id', id);
     if (error) {
       setErrorMsg('No se pudo eliminar el registro.');
       return;
     }
-    await fetchDashboardSummary();
-    if (activeTab === 'publicaciones') {
-      await fetchArticulos();
+
+    if (tabla === 'lex_articulos') {
+      setArticulos((prev) => (prev || []).filter((a) => a.id !== id));
     } else {
-      await fetchNoticias();
+      setNoticias((prev) => (prev || []).filter((n) => n.id !== id));
     }
+
+    await fetchDashboardSummary();
   };
 
   const getPublicacionPdfUrl = (item) => item?.pdf_url || item?.documento_url || '';
@@ -224,9 +237,9 @@ const AdminUpload = () => {
     setErrorMsg('');
   };
 
-  const uploadFileAndGetPublicUrl = async (file, fileType) => {
+  const uploadFileAndGetPublicUrl = async (file, fileType, section) => {
     const isPdf = fileType === 'pdf';
-    const bucketName = 'Lex-publicaciones';
+    const bucketName = section === 'noticias' ? 'Lex-noticias' : 'Lex-publicaciones';
     const folder = isPdf ? 'documentos' : 'portadas';
     const targetField = isPdf ? 'pdf_url' : 'imagen_url';
     const fileExt = file.name.split('.').pop();
@@ -261,10 +274,21 @@ const AdminUpload = () => {
     }
   };
 
+  const parseResumenPuntos = (rawValue) => {
+    if (!rawValue) return null;
+
+    return rawValue
+      .split(/\s*[,-]\s*|\n+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (activeTab === 'publicaciones') {
+    const currentModule = modalModule;
+
+    if (currentModule === 'publicaciones') {
       const titulo = formData.titulo.trim();
       const categoriaId = String(formData.categoria_id || '').trim();
 
@@ -285,22 +309,22 @@ const AdminUpload = () => {
     setSaving(true);
     setErrorMsg('');
 
-    const targetTable = activeTab === 'publicaciones' ? 'lex_articulos' : 'lex_noticias';
+    const targetTable = getTableByModule(currentModule);
 
     let payload;
-    if (activeTab === 'publicaciones') {
-      const categoriaId = Number(formData.categoria_id);
+    if (currentModule === 'publicaciones') {
+      const categoriaId = String(formData.categoria_id || '').trim();
       const autorInputValue = String(formData.autor_nombre ?? formData.autor ?? '').trim();
       let imageUrl = String(formData.imagen_url || '').trim();
       let pdfUrl = String(formData.pdf_url || '').trim();
 
       try {
         if (selectedImageFile) {
-          imageUrl = await uploadFileAndGetPublicUrl(selectedImageFile, 'imagen');
+          imageUrl = await uploadFileAndGetPublicUrl(selectedImageFile, 'imagen', 'publicaciones');
         }
 
         if (selectedPdfFile) {
-          pdfUrl = await uploadFileAndGetPublicUrl(selectedPdfFile, 'pdf');
+          pdfUrl = await uploadFileAndGetPublicUrl(selectedPdfFile, 'pdf', 'publicaciones');
         }
       } catch {
         setSaving(false);
@@ -324,7 +348,7 @@ const AdminUpload = () => {
         titulo: formData.titulo.trim(),
         autor_nombre: autorInputValue || null,
         fecha: formData.fecha || null,
-        categoria_id: Number.isFinite(categoriaId) ? categoriaId : null,
+        categoria_id: categoriaId || null,
         imagen_url: imageUrl || null,
         pdf_url: pdfUrl || null
       };
@@ -332,12 +356,56 @@ const AdminUpload = () => {
       payload = {
         titulo: formData.titulo,
         fecha: formData.fecha || null,
-        imagen_url: formData.imagen_url || null,
-        pdf_url: formData.pdf_url || null,
-        resumen_p: formData.resumen_p
-          ? formData.resumen_p.split('|').map((item) => item.trim()).filter(Boolean)
-          : null
+        imagen_url: null,
+        pdf_url: null,
+        resumen_p: null
       };
+
+      const hasImageSource = Boolean(selectedImageFile || String(formData.imagen_url || '').trim());
+      const hasPdfSource = Boolean(selectedPdfFile || String(formData.pdf_url || '').trim());
+
+      if (!hasImageSource || !hasPdfSource) {
+        setSaving(false);
+        setErrorMsg('Debes subir imagen y PDF antes de guardar la noticia.');
+        return;
+      }
+
+      let imageUrl = String(formData.imagen_url || '').trim();
+      let pdfUrl = String(formData.pdf_url || '').trim();
+
+      try {
+        if (selectedImageFile) {
+          imageUrl = await uploadFileAndGetPublicUrl(selectedImageFile, 'imagen', 'noticias');
+        }
+
+        if (selectedPdfFile) {
+          pdfUrl = await uploadFileAndGetPublicUrl(selectedPdfFile, 'pdf', 'noticias');
+        }
+      } catch {
+        setSaving(false);
+        setErrorMsg('No se pudieron subir los archivos de la noticia. Intenta nuevamente.');
+        return;
+      }
+
+      if (!imageUrl || !pdfUrl) {
+        setSaving(false);
+        setErrorMsg('No se pudieron obtener las URLs de imagen y PDF para la noticia.');
+        return;
+      }
+
+      payload = {
+        titulo: formData.titulo.trim(),
+        fecha: formData.fecha || null,
+        imagen_url: imageUrl,
+        pdf_url: pdfUrl,
+        resumen_p: parseResumenPuntos(formData.resumen_p)
+      };
+
+      setFormData((prev) => ({
+        ...prev,
+        imagen_url: imageUrl,
+        pdf_url: pdfUrl
+      }));
     }
 
     let request;
@@ -521,7 +589,7 @@ const AdminUpload = () => {
                             <button
                               type="button"
                               className="admin-action-btn"
-                              onClick={() => openEditModal(item)}
+                              onClick={() => openEditModal(item, 'publicaciones')}
                               aria-label="Editar"
                               title="Editar"
                             >
@@ -531,7 +599,7 @@ const AdminUpload = () => {
                             <button
                               type="button"
                               className="admin-action-btn is-danger"
-                              onClick={() => handleDelete(item.id)}
+                              onClick={() => handleDelete(item.id, 'articulos')}
                               aria-label="Eliminar"
                               title="Eliminar"
                             >
@@ -582,7 +650,7 @@ const AdminUpload = () => {
                             <button
                               type="button"
                               className="admin-action-btn"
-                              onClick={() => openEditModal(item)}
+                              onClick={() => openEditModal(item, 'noticias')}
                               aria-label="Editar"
                               title="Editar"
                             >
@@ -592,7 +660,7 @@ const AdminUpload = () => {
                             <button
                               type="button"
                               className="admin-action-btn is-danger"
-                              onClick={() => handleDelete(item.id)}
+                              onClick={() => handleDelete(item.id, 'noticias')}
                               aria-label="Eliminar"
                               title="Eliminar"
                             >
@@ -636,7 +704,7 @@ const AdminUpload = () => {
               <h3>
                 {editingRecord
                   ? 'Editar Registro'
-                  : (activeTab === 'publicaciones' ? 'Nueva Publicacion' : 'Nueva Noticia')}
+                  : (modalModule === 'publicaciones' ? 'Nueva Publicacion' : 'Nueva Noticia')}
               </h3>
               <button type="button" className="admin-modal-close" onClick={closeModal}>
                 x
@@ -649,7 +717,7 @@ const AdminUpload = () => {
                 <input name="titulo" value={formData.titulo} onChange={handleFormChange} required />
               </label>
 
-              {activeTab === 'publicaciones' ? (
+              {modalModule === 'publicaciones' ? (
                 <label>
                   Autor
                   <input name="autor_nombre" value={formData.autor_nombre} onChange={handleFormChange} />
@@ -661,7 +729,7 @@ const AdminUpload = () => {
                 <input type="date" name="fecha" value={formData.fecha} onChange={handleFormChange} required />
               </label>
 
-              {activeTab === 'publicaciones' ? (
+              {modalModule === 'publicaciones' ? (
                 <label>
                   Categoria
                   <select name="categoria_id" value={formData.categoria_id} onChange={handleFormChange} required>
@@ -697,9 +765,9 @@ const AdminUpload = () => {
                 {selectedPdfFile ? <small>Archivo seleccionado: {selectedPdfFile.name}</small> : null}
               </label>
 
-              {activeTab === 'noticias' ? (
+              {modalModule === 'noticias' ? (
                 <label>
-                  Resumen puntos (separa con |)
+                  Resumen puntos (separa con coma o guion)
                   <textarea name="resumen_p" value={formData.resumen_p} onChange={handleFormChange} rows={2} />
                 </label>
               ) : null}
