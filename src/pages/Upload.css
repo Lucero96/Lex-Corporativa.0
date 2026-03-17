@@ -2,8 +2,24 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #f3f3f5;
+  background: #042745eb;
   color: #0b1a3f;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.admin-network-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.72;
+}
+
+.admin-page > *:not(.admin-network-canvas):not(.admin-pdf-viewer):not(.admin-modal-backdrop) {
+  position: relative;
+  z-index: 1;
 }
 
 .admin-header-content.container,
@@ -115,7 +131,7 @@
 }
 
 .admin-kpi-card-primary {
-  background: #12285a;
+  background: #293a63;
   color: #F5F5F5;
 }
 
@@ -138,7 +154,7 @@
 
 .admin-tabs {
   margin-top: 1.15rem;
-  border-bottom: 1px solid #d9deea;
+  border-bottom: 1px solid #f0f792;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -147,16 +163,23 @@
 .admin-tab {
   border: none;
   background: transparent;
-  color: #4b5470;
+  color: #888b7e;
   padding: 0.8rem 1rem;
   font-weight: 700;
   cursor: pointer;
   border-bottom: 2px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
 }
 
 .admin-tab.is-active {
-  color: #11275a;
-  border-bottom-color: #C5A059;
+  color: #C5A473;
+  border-bottom-color: #C5A473;
+}
+
+.admin-tab-icon {
+  color: currentColor;
 }
 
 .admin-table-block {

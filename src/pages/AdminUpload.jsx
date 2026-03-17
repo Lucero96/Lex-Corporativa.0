@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { Eye, FileText, Newspaper, Pencil, Trash2 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import './Upload.css';
 
@@ -34,6 +34,8 @@ const AdminUpload = () => {
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [selectedPdfFile, setSelectedPdfFile] = useState(null);
+  const adminPageRef = useRef(null);
+  const adminCanvasRef = useRef(null);
 
   const fetchCategorias = async () => {
     const { data, error } = await supabase
@@ -121,6 +123,135 @@ const AdminUpload = () => {
       window.clearTimeout(timeoutId);
     };
   }, [activeTab]);
+
+  useEffect(() => {
+    const sectionEl = adminPageRef.current;
+    const canvas = adminCanvasRef.current;
+    if (!sectionEl || !canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationId;
+    let width = 0;
+    let height = 0;
+    const mouse = { x: null, y: null };
+    const points = [];
+
+    const pointColor = 'rgba(232, 220, 196, 0.35)';
+    const lineColor = 'rgba(232, 220, 196, 0.10)';
+    const connectionDistance = 110;
+    const mouseRadius = 140;
+    const pointRadius = 1.9;
+    const density = 15000;
+    const minPoints = 46;
+    const maxPoints = 96;
+
+    const buildPoints = () => {
+      points.length = 0;
+      const area = width * height;
+      const pointCount = Math.max(minPoints, Math.min(maxPoints, Math.floor(area / density)));
+
+      for (let i = 0; i < pointCount; i += 1) {
+        points.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.28,
+          vy: (Math.random() - 0.5) * 0.28
+        });
+      }
+    };
+
+    const resizeCanvas = () => {
+      const rect = sectionEl.getBoundingClientRect();
+      width = rect.width;
+      height = rect.height;
+
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(width * ratio);
+      canvas.height = Math.floor(height * ratio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+      buildPoints();
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < points.length; i += 1) {
+        const p1 = points[i];
+
+        p1.x += p1.vx;
+        p1.y += p1.vy;
+
+        if (p1.x <= 0 || p1.x >= width) p1.vx *= -1;
+        if (p1.y <= 0 || p1.y >= height) p1.vy *= -1;
+
+        for (let j = i + 1; j < points.length; j += 1) {
+          const p2 = points[j];
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const distance = Math.hypot(dx, dy);
+
+          if (distance < connectionDistance) {
+            const opacity = ((connectionDistance - distance) / connectionDistance) * 0.12;
+            ctx.strokeStyle = lineColor.replace('0.10', opacity.toFixed(3));
+            ctx.lineWidth = 0.55;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        }
+
+        if (mouse.x !== null && mouse.y !== null) {
+          const mx = p1.x - mouse.x;
+          const my = p1.y - mouse.y;
+          const mouseDistance = Math.hypot(mx, my);
+
+          if (mouseDistance < mouseRadius) {
+            const force = (mouseRadius - mouseDistance) / mouseRadius;
+            p1.x += (mx / (mouseDistance || 1)) * force * 0.65;
+            p1.y += (my / (mouseDistance || 1)) * force * 0.65;
+          }
+        }
+
+        ctx.fillStyle = pointColor;
+        ctx.beginPath();
+        ctx.arc(p1.x, p1.y, pointRadius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      animationId = window.requestAnimationFrame(draw);
+    };
+
+    const handleMouseMove = (event) => {
+      const rect = sectionEl.getBoundingClientRect();
+      mouse.x = event.clientX - rect.left;
+      mouse.y = event.clientY - rect.top;
+    };
+
+    const handleMouseLeave = () => {
+      mouse.x = null;
+      mouse.y = null;
+    };
+
+    resizeCanvas();
+    draw();
+
+    window.addEventListener('resize', resizeCanvas);
+    sectionEl.addEventListener('mousemove', handleMouseMove);
+    sectionEl.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      sectionEl.removeEventListener('mousemove', handleMouseMove);
+      sectionEl.removeEventListener('mouseleave', handleMouseLeave);
+      window.cancelAnimationFrame(animationId);
+    };
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -437,7 +568,8 @@ const AdminUpload = () => {
   console.log('Datos Noticias:', noticias);
 
   return (
-    <div className="admin-page">
+    <div className="admin-page" ref={adminPageRef}>
+      <canvas className="admin-network-canvas" ref={adminCanvasRef} aria-hidden="true" />
       <header className="admin-header">
         <div className="admin-header-content container">
           <div className="admin-logo-container" aria-label="Lex Corporativa">
@@ -475,6 +607,7 @@ const AdminUpload = () => {
             className={`admin-tab ${activeTab === 'publicaciones' ? 'is-active' : ''}`}
             onClick={() => setActiveTab('publicaciones')}
           >
+            <FileText size={16} className="admin-tab-icon" aria-hidden="true" />
             Gestionar Publicaciones
           </button>
           <button
@@ -482,6 +615,7 @@ const AdminUpload = () => {
             className={`admin-tab ${activeTab === 'noticias' ? 'is-active' : ''}`}
             onClick={() => setActiveTab('noticias')}
           >
+            <Newspaper size={16} className="admin-tab-icon" aria-hidden="true" />
             Gestionar Noticias
           </button>
         </section>
