@@ -9,6 +9,14 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+const HERO_SLIDES = [
+  { image: '/assets/sobre-nosotros.png', alt: 'Vista institucional Lex Corporativa 1' },
+  { image: '/assets/sobre-nosotros2.1.png', alt: 'Vista institucional Lex Corporativa 2' },
+  { image: '/assets/sobre-nosotros3.png', alt: 'Vista institucional Lex Corporativa 3' },
+  { image: '/assets/sobre-nosotros4.png', alt: 'Vista institucional Lex Corporativa 4' },
+  { image: '/assets/sobre-nosotros5.png', alt: 'Vista institucional Lex Corporativa 5' }
+];
+
 const Nosotros = () => {
   const editorialSectionRef = useRef(null);
   const editorialCanvasRef = useRef(null);
@@ -223,7 +231,36 @@ const Nosotros = () => {
       <section className="section-wrapper about-sector about-sector-dark about-sector-header">
         <div className="about-hero-shell">
           <div className="about-hero-grid">
-            <div className="about-hero-image" aria-label="Imagen de Sobre Nosotros" />
+            <div className="about-hero-image" aria-label="Galeria de imagenes de Sobre Nosotros">
+              <Swiper
+                className="about-hero-carousel"
+                modules={[Autoplay, Pagination, A11y]}
+                slidesPerView={1}
+                loop
+                speed={900}
+                autoplay={{
+                  delay: 3200,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true
+                }}
+                pagination={{
+                  el: '.about-hero-carousel-dots',
+                  clickable: true
+                }}
+              >
+                {HERO_SLIDES.map((slide) => (
+                  <SwiperSlide key={slide.image} className="about-hero-carousel-slide">
+                    <div
+                      className="about-hero-carousel-image"
+                      role="img"
+                      aria-label={slide.alt}
+                      style={{ backgroundImage: `url(${slide.image})` }}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <div className="about-hero-carousel-dots" aria-hidden="true" />
+            </div>
 
             <div className="about-hero-content">
               <div className="about-hero-copy">

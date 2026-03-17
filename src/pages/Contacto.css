@@ -28,9 +28,9 @@
 }
 
 .contact-hero .page-header {
-  margin-bottom: 0;
-  border-bottom: none;
-  padding-bottom: 0;
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(232, 220, 196, 0.1);
+  padding-bottom: 1.1rem;
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;
@@ -54,7 +54,7 @@
 .contact-main-wrapper {
   position: relative;
   z-index: 2;
-  padding: 3.2rem 0 6rem;
+  padding: 0 0 6rem;
 }
 
 .contact-content {
@@ -95,6 +95,11 @@
   font-size: 1.125rem;
   line-height: 1.7;
   margin-bottom: 1rem;
+}
+
+.contact-description-hero {
+  margin: 0.95rem 0 0;
+  max-width: 58rem;
 }
 
 .info-item {
@@ -316,7 +321,11 @@
   }
 
   .contact-main-wrapper {
-    padding: 2.2rem 0 4rem;
+    padding: 0 0 4rem;
+  }
+
+  .contact-hero .page-header {
+    margin-bottom: 1rem;
   }
 
   .page-title {

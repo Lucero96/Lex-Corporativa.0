@@ -140,6 +140,10 @@ const Contacto = () => {
             <div>
               <div className="section-label">COMUNÍCATE CON NOSOTROS</div>
               <h1 className="page-title">Contacto</h1>
+              <p className="contact-description contact-description-hero">
+                Estamos aquí para responder tus consultas, recibir tus colaboraciones
+                y fortalecer nuestra comunidad académica.
+              </p>
             </div>
           </div>
         </div>
@@ -152,11 +156,6 @@ const Contacto = () => {
               <div className="contact-container">
                 {/* Columna Izquierda - Información */}
                 <div className="contact-info-column">
-                  <p className="contact-description">
-                    Estamos aquí para responder tus consultas, recibir tus colaboraciones 
-                    y fortalecer nuestra comunidad académica.
-                  </p>
-
                   {/* Email */}
                   <div className="info-item">
                     <div className="info-icon">

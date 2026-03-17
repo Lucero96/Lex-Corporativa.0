@@ -1,45 +1,70 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import './Noticias.css';
 
-const FILTER_OPTIONS = [
-  { label: 'Todas', value: 'todas' },
-  { label: 'Este Mes', value: 'este-mes' },
-  { label: 'Anteriores', value: 'anteriores' }
+const MONTH_OPTIONS = [
+  { value: 'all', label: 'Todos los meses' },
+  { value: '0', label: 'Enero' },
+  { value: '1', label: 'Febrero' },
+  { value: '2', label: 'Marzo' },
+  { value: '3', label: 'Abril' },
+  { value: '4', label: 'Mayo' },
+  { value: '5', label: 'Junio' },
+  { value: '6', label: 'Julio' },
+  { value: '7', label: 'Agosto' },
+  { value: '8', label: 'Septiembre' },
+  { value: '9', label: 'Octubre' },
+  { value: '10', label: 'Noviembre' },
+  { value: '11', label: 'Diciembre' }
 ];
 
 const Noticias = () => {
   const [publicaciones, setPublicaciones] = useState([]);
-  const [activeFilter, setActiveFilter] = useState('todas');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [yearFilter, setYearFilter] = useState('all');
+  const [monthFilter, setMonthFilter] = useState('all');
   const [selectedPdf, setSelectedPdf] = useState(null);
   const noticiasPageRef = useRef(null);
   const noticiasCanvasRef = useRef(null);
 
+  const publicationYears = useMemo(() => {
+    return Array.from(
+      new Set(
+        publicaciones
+          .map((pub) => (pub.fecha ? new Date(pub.fecha).getFullYear() : null))
+          .filter((year) => Number.isInteger(year))
+      )
+    ).sort((a, b) => b - a);
+  }, [publicaciones]);
+
+  const filteredPublicaciones = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    return publicaciones.filter((pub) => {
+      if (!pub.fecha) return false;
+
+      const pubDate = new Date(pub.fecha);
+      if (Number.isNaN(pubDate.getTime())) return false;
+
+      const pubYear = String(pubDate.getFullYear());
+      const pubMonth = String(pubDate.getMonth());
+
+      const matchesYear = yearFilter === 'all' || pubYear === yearFilter;
+      const matchesMonth = monthFilter === 'all' || pubMonth === monthFilter;
+
+      const title = (pub.titulo || '').toLowerCase();
+      const matchesQuery = normalizedQuery.length === 0 || title.includes(normalizedQuery);
+
+      return matchesYear && matchesMonth && matchesQuery;
+    });
+  }, [publicaciones, searchQuery, yearFilter, monthFilter]);
+
   useEffect(() => {
     const fetchPublicaciones = async () => {
-      let query = supabase
+      const { data, error } = await supabase
         .from('lex_noticias')
         .select('*')
         .order('fecha', { ascending: false });
-
-      if (activeFilter === 'este-mes') {
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-
-        query = query
-          .gte('fecha', startOfMonth.toISOString())
-          .lt('fecha', startOfNextMonth.toISOString());
-      }
-
-      if (activeFilter === 'anteriores') {
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-        query = query.lt('fecha', startOfMonth.toISOString());
-      }
-
-      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching publicaciones:', error);
@@ -48,7 +73,7 @@ const Noticias = () => {
       }
     };
     fetchPublicaciones();
-  }, [activeFilter]);
+  }, []);
 
   useEffect(() => {
     const sectionEl = noticiasPageRef.current;
@@ -195,31 +220,60 @@ const Noticias = () => {
       <main className="noticias-main">
         <div className="container">
           <header className="noticias-header">
-            <div className="section-label">REPOSITORIO ACADEMICO</div>
-            <h1 className="noticias-title">Noticia Semanal</h1>
+            <div className="section-label">REPOSITORIO ACADÉMICO</div>
+            <h1 className="noticias-title">Noticias</h1>
             <p className="noticias-subtitle">
               Mantente al tanto de las últimas actualizaciones, novedades legislativas y eventos de nuestra comunidad jurídica.
             </p>
-
-            <div className="noticias-filter-chips" aria-label="Filtros cronológicos de noticias">
-              {FILTER_OPTIONS.map((filter) => (
-                <button
-                  key={filter.value}
-                  type="button"
-                  className={`noticias-filter-chip ${activeFilter === filter.value ? 'is-active' : ''}`}
-                  onClick={() => setActiveFilter(filter.value)}
-                >
-                  {filter.label}
-                </button>
-              ))}
-            </div>
           </header>
 
-          {publicaciones.length === 0 ? (
+          <div className="noticias-filters">
+            <input
+              className="noticias-filter-input"
+              type="text"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Buscar noticias por título..."
+              aria-label="Buscar noticias por título"
+            />
+
+            <select
+              className="noticias-filter-select"
+              value={yearFilter}
+              onChange={(event) => setYearFilter(event.target.value)}
+              aria-label="Filtrar noticias por año"
+            >
+              <option value="all">Todos los años</option>
+              {publicationYears.map((year) => (
+                <option key={year} value={String(year)}>
+                  {year}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="noticias-filter-select"
+              value={monthFilter}
+              onChange={(event) => setMonthFilter(event.target.value)}
+              aria-label="Filtrar noticias por mes"
+            >
+              {MONTH_OPTIONS.map((month) => (
+                <option key={month.value} value={month.value}>
+                  {month.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <p className="noticias-filter-results">
+            Mostrando {filteredPublicaciones.length} de {publicaciones.length} noticias
+          </p>
+
+          {filteredPublicaciones.length === 0 ? (
             <div className="noticias-empty">No hay noticias registradas en este periodo.</div>
           ) : (
             <section className="noticias-grid" aria-label="Listado de noticias">
-              {publicaciones.map((pub) => (
+              {filteredPublicaciones.map((pub) => (
                 <article
                   key={pub.id}
                   className="noticia-grid-card"

@@ -213,6 +213,7 @@ const Archivo = () => {
               <div className="section-label">REPOSITORIO ACADÉMICO</div>
               <h1 className="page-title">Archivo de Publicaciones</h1>
               <p className="page-subtitle">Explore nuestra colección completa de publicaciones académicas y boletines jurídicos.</p>
+              <div className="page-header-divider" aria-hidden="true" />
             </div>
           </div>
 
