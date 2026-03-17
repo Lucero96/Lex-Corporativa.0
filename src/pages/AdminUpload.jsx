@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
@@ -9,10 +9,8 @@ const INITIAL_FORM = {
   autor_nombre: '',
   fecha: '',
   categoria_id: '',
-  categoria: '',
   imagen_url: '',
-  documento_url: '',
-  resumen: '',
+  pdf_url: '',
   resumen_p: ''
 };
 
@@ -28,15 +26,13 @@ const AdminUpload = () => {
   const [loadingNoticias, setLoadingNoticias] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [saving, setSaving] = useState(false);
+  const [uploadingField, setUploadingField] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [selectedPdf, setSelectedPdf] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM);
-
-  const categoryById = useMemo(
-    () => new Map(categorias.map((item) => [String(item.id), item.nombre])),
-    [categorias]
-  );
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [selectedPdfFile, setSelectedPdfFile] = useState(null);
 
   const fetchCategorias = async () => {
     const { data, error } = await supabase
@@ -133,6 +129,9 @@ const AdminUpload = () => {
   const openCreateModal = () => {
     setEditingRecord(null);
     setFormData(INITIAL_FORM);
+    setSelectedImageFile(null);
+    setSelectedPdfFile(null);
+    setErrorMsg('');
     setIsModalOpen(true);
   };
 
@@ -145,12 +144,13 @@ const AdminUpload = () => {
       autor_nombre: isNoticiasTab ? '' : (record.autor_nombre || ''),
       fecha: record.fecha ? String(record.fecha).slice(0, 10) : '',
       categoria_id: isNoticiasTab ? '' : (record.categoria_id ? String(record.categoria_id) : ''),
-      categoria: isNoticiasTab ? '' : (record.categoria || ''),
       imagen_url: record.imagen_url || '',
-      documento_url: isNoticiasTab ? (record.pdf_url || '') : (record.documento_url || ''),
-      resumen: isNoticiasTab ? '' : (record.resumen || ''),
+      pdf_url: isNoticiasTab ? (record.pdf_url || '') : (record.pdf_url || record.documento_url || ''),
       resumen_p: Array.isArray(record.resumen_p) ? record.resumen_p.join(' | ') : (record.resumen_p || '')
     });
+    setSelectedImageFile(null);
+    setSelectedPdfFile(null);
+    setErrorMsg('');
     setIsModalOpen(true);
   };
 
@@ -158,6 +158,9 @@ const AdminUpload = () => {
     setIsModalOpen(false);
     setEditingRecord(null);
     setFormData(INITIAL_FORM);
+    setSelectedImageFile(null);
+    setSelectedPdfFile(null);
+    setUploadingField('');
   };
 
   const handleDelete = async (recordId) => {
@@ -201,8 +204,84 @@ const AdminUpload = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async (event) => {
+  const handleUpload = async (event, fileType) => {
+    const selectedFile = event.target.files?.[0];
+    const nextFile = selectedFile || null;
+
+    if (fileType === 'pdf') {
+      setSelectedPdfFile(nextFile);
+      if (nextFile) {
+        setFormData((prev) => ({ ...prev, pdf_url: '' }));
+      }
+    } else {
+      setSelectedImageFile(nextFile);
+      if (nextFile) {
+        setFormData((prev) => ({ ...prev, imagen_url: '' }));
+      }
+    }
+
+    // Si ya hay archivo(s) seleccionado(s), limpiamos errores previos de validacion.
+    setErrorMsg('');
+  };
+
+  const uploadFileAndGetPublicUrl = async (file, fileType) => {
+    const isPdf = fileType === 'pdf';
+    const bucketName = 'Lex-publicaciones';
+    const folder = isPdf ? 'documentos' : 'portadas';
+    const targetField = isPdf ? 'pdf_url' : 'imagen_url';
+    const fileExt = file.name.split('.').pop();
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const fileName = `${Date.now()}-${safeName}${fileExt ? '' : '.bin'}`;
+    const storagePath = `${folder}/${fileName}`;
+
+    setUploadingField(targetField);
+
+    try {
+      console.log('Subiendo a:', bucketName, 'con ruta:', storagePath);
+
+      const { error: uploadError } = await supabase
+        .storage
+        .from(bucketName)
+        .upload(storagePath, file, { upsert: false });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = await supabase.storage.from(bucketName).getPublicUrl(storagePath);
+      const publicUrl = data?.publicUrl || '';
+
+      if (!publicUrl) {
+        throw new Error('No se pudo obtener la URL publica del archivo.');
+      }
+
+      return publicUrl;
+    } finally {
+      setUploadingField('');
+    }
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (activeTab === 'publicaciones') {
+      const titulo = formData.titulo.trim();
+      const categoriaId = String(formData.categoria_id || '').trim();
+
+      if (!titulo || !categoriaId) {
+        setErrorMsg('El titulo y la categoria son obligatorios para una publicacion.');
+        return;
+      }
+
+      const hasImageSource = Boolean(selectedImageFile || String(formData.imagen_url || '').trim());
+      const hasPdfSource = Boolean(selectedPdfFile || String(formData.pdf_url || '').trim());
+
+      if (!hasImageSource || !hasPdfSource) {
+        setErrorMsg('Debes subir imagen y PDF antes de guardar la publicacion.');
+        return;
+      }
+    }
+
     setSaving(true);
     setErrorMsg('');
 
@@ -210,29 +289,51 @@ const AdminUpload = () => {
 
     let payload;
     if (activeTab === 'publicaciones') {
-      const selectedCategoryName = formData.categoria_id
-        ? categoryById.get(String(formData.categoria_id)) || formData.categoria
-        : formData.categoria;
+      const categoriaId = Number(formData.categoria_id);
+      const autorInputValue = String(formData.autor_nombre ?? formData.autor ?? '').trim();
+      let imageUrl = String(formData.imagen_url || '').trim();
+      let pdfUrl = String(formData.pdf_url || '').trim();
+
+      try {
+        if (selectedImageFile) {
+          imageUrl = await uploadFileAndGetPublicUrl(selectedImageFile, 'imagen');
+        }
+
+        if (selectedPdfFile) {
+          pdfUrl = await uploadFileAndGetPublicUrl(selectedPdfFile, 'pdf');
+        }
+      } catch {
+        setSaving(false);
+        setErrorMsg('No se pudieron subir los archivos. Intenta nuevamente.');
+        return;
+      }
+
+      if (!imageUrl || !pdfUrl) {
+        setSaving(false);
+        setErrorMsg('No se pudieron obtener las URLs de imagen y PDF.');
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        imagen_url: imageUrl,
+        pdf_url: pdfUrl
+      }));
 
       payload = {
-        titulo: formData.titulo,
-        autor_nombre: formData.autor_nombre,
+        titulo: formData.titulo.trim(),
+        autor_nombre: autorInputValue || null,
         fecha: formData.fecha || null,
-        categoria_id: formData.categoria_id || null,
-        categoria: selectedCategoryName || null,
-        imagen_url: formData.imagen_url || null,
-        documento_url: formData.documento_url || null,
-        resumen: formData.resumen || null,
-        resumen_p: formData.resumen_p
-          ? formData.resumen_p.split('|').map((item) => item.trim()).filter(Boolean)
-          : null
+        categoria_id: Number.isFinite(categoriaId) ? categoriaId : null,
+        imagen_url: imageUrl || null,
+        pdf_url: pdfUrl || null
       };
     } else {
       payload = {
         titulo: formData.titulo,
         fecha: formData.fecha || null,
         imagen_url: formData.imagen_url || null,
-        pdf_url: formData.documento_url || null,
+        pdf_url: formData.pdf_url || null,
         resumen_p: formData.resumen_p
           ? formData.resumen_p.split('|').map((item) => item.trim()).filter(Boolean)
           : null
@@ -532,57 +633,76 @@ const AdminUpload = () => {
         <div className="admin-modal-backdrop" role="presentation" onClick={closeModal}>
           <div className="admin-modal" role="dialog" aria-modal="true" aria-label="Formulario de publicacion" onClick={(event) => event.stopPropagation()}>
             <div className="admin-modal-header">
-              <h3>{editingRecord ? 'Editar Registro' : 'Nueva Publicacion'}</h3>
+              <h3>
+                {editingRecord
+                  ? 'Editar Registro'
+                  : (activeTab === 'publicaciones' ? 'Nueva Publicacion' : 'Nueva Noticia')}
+              </h3>
               <button type="button" className="admin-modal-close" onClick={closeModal}>
                 x
               </button>
             </div>
 
-            <form className="admin-modal-form" onSubmit={handleSave}>
+            <form className="admin-modal-form" onSubmit={handleSubmit}>
               <label>
                 Titulo
                 <input name="titulo" value={formData.titulo} onChange={handleFormChange} required />
               </label>
 
-              <label>
-                Autor
-                <input name="autor_nombre" value={formData.autor_nombre} onChange={handleFormChange} required />
-              </label>
+              {activeTab === 'publicaciones' ? (
+                <label>
+                  Autor
+                  <input name="autor_nombre" value={formData.autor_nombre} onChange={handleFormChange} />
+                </label>
+              ) : null}
 
               <label>
                 Fecha
                 <input type="date" name="fecha" value={formData.fecha} onChange={handleFormChange} required />
               </label>
 
+              {activeTab === 'publicaciones' ? (
+                <label>
+                  Categoria
+                  <select name="categoria_id" value={formData.categoria_id} onChange={handleFormChange} required>
+                    <option value="">Selecciona una categoria</option>
+                    {categorias.map((cat) => (
+                      <option key={cat.id} value={String(cat.id)}>{cat.nombre}</option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
+
               <label>
-                Categoria
-                <select name="categoria_id" value={formData.categoria_id} onChange={handleFormChange}>
-                  <option value="">Selecciona una categoria</option>
-                  {categorias.map((cat) => (
-                    <option key={cat.id} value={String(cat.id)}>{cat.nombre}</option>
-                  ))}
-                </select>
+                Imagen
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleUpload(event, 'imagen')}
+                  disabled={uploadingField === 'imagen_url'}
+                />
+                {uploadingField === 'imagen_url' ? <small>Subiendo...</small> : null}
+                {selectedImageFile ? <small>Archivo seleccionado: {selectedImageFile.name}</small> : null}
               </label>
 
               <label>
-                Imagen URL
-                <input name="imagen_url" value={formData.imagen_url} onChange={handleFormChange} placeholder="https://..." />
+                PDF
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(event) => handleUpload(event, 'pdf')}
+                  disabled={uploadingField === 'pdf_url'}
+                />
+                {uploadingField === 'pdf_url' ? <small>Subiendo...</small> : null}
+                {selectedPdfFile ? <small>Archivo seleccionado: {selectedPdfFile.name}</small> : null}
               </label>
 
-              <label>
-                Documento URL
-                <input name="documento_url" value={formData.documento_url} onChange={handleFormChange} placeholder="https://..." />
-              </label>
-
-              <label>
-                Resumen
-                <textarea name="resumen" value={formData.resumen} onChange={handleFormChange} rows={4} />
-              </label>
-
-              <label>
-                Resumen puntos (separa con |)
-                <textarea name="resumen_p" value={formData.resumen_p} onChange={handleFormChange} rows={2} />
-              </label>
+              {activeTab === 'noticias' ? (
+                <label>
+                  Resumen puntos (separa con |)
+                  <textarea name="resumen_p" value={formData.resumen_p} onChange={handleFormChange} rows={2} />
+                </label>
+              ) : null}
 
               <div className="admin-modal-actions">
                 <button type="button" className="admin-secondary-btn" onClick={closeModal}>Cancelar</button>
