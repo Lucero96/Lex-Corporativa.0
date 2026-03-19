@@ -314,6 +314,55 @@
   overflow-x: auto;
 }
 
+.admin-table-pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.7rem;
+}
+
+.admin-table-pagination-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+
+.admin-table-page-btn {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(232, 220, 196, 0.4);
+  background: rgba(11, 42, 97, 0.1);
+  color: #6f7898;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.admin-table-page-btn-nav {
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.admin-table-page-btn:hover:not(.is-active) {
+  border-color: #CBAF54;
+  color: #2f3858;
+  box-shadow: 0 4px 10px rgba(203, 175, 84, 0.26);
+}
+
+.admin-table-page-btn.is-active {
+  background: #CBAF54;
+  border-color: #CBAF54;
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(203, 175, 84, 0.35);
+}
+
+.admin-table-page-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -691,6 +740,10 @@
 
   .admin-table-toolbar h2 {
     font-size: 1.8rem;
+  }
+
+  .admin-table-pagination {
+    justify-content: center;
   }
 
   .admin-footer-content {

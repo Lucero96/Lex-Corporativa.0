@@ -29,6 +29,8 @@ const MONTH_OPTIONS = [
   { value: '12', label: 'Diciembre' }
 ];
 
+const ADMIN_ROWS_PER_PAGE = 8;
+
 const getDateParts = (rawDate) => {
   if (!rawDate) return { year: '', month: '' };
 
@@ -72,6 +74,10 @@ const AdminUpload = () => {
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [selectedPdfFile, setSelectedPdfFile] = useState(null);
+  const [paginaPublicaciones, setPaginaPublicaciones] = useState(1);
+  const [isPaginatingPublicaciones, setIsPaginatingPublicaciones] = useState(false);
+  const [paginaNoticias, setPaginaNoticias] = useState(1);
+  const [isPaginatingNoticias, setIsPaginatingNoticias] = useState(false);
   const [publicationFilters, setPublicationFilters] = useState({
     search: '',
     categoria: '',
@@ -85,6 +91,8 @@ const AdminUpload = () => {
   });
   const adminPageRef = useRef(null);
   const adminCanvasRef = useRef(null);
+  const paginationTimeoutRef = useRef(null);
+  const noticiasPaginationTimeoutRef = useRef(null);
 
   const availableYears = useMemo(() => {
     const yearsSet = new Set();
@@ -147,6 +155,21 @@ const AdminUpload = () => {
       return matchesSearch && matchesYear && matchesMonth;
     });
   }, [noticias, newsFilters]);
+
+  const totalPaginasPublicaciones = Math.ceil(filteredArticulos.length / ADMIN_ROWS_PER_PAGE);
+  const paginaPublicacionesSegura = Math.min(paginaPublicaciones, Math.max(totalPaginasPublicaciones, 1));
+  const inicioPublicaciones = (paginaPublicacionesSegura - 1) * ADMIN_ROWS_PER_PAGE;
+  const publicacionesPaginadas = filteredArticulos.slice(
+    inicioPublicaciones,
+    inicioPublicaciones + ADMIN_ROWS_PER_PAGE
+  );
+  const totalPaginasNoticias = Math.ceil(filteredNoticias.length / ADMIN_ROWS_PER_PAGE);
+  const paginaNoticiasSegura = Math.min(paginaNoticias, Math.max(totalPaginasNoticias, 1));
+  const inicioNoticias = (paginaNoticiasSegura - 1) * ADMIN_ROWS_PER_PAGE;
+  const noticiasPaginadas = filteredNoticias.slice(
+    inicioNoticias,
+    inicioNoticias + ADMIN_ROWS_PER_PAGE
+  );
 
   const fetchCategorias = async () => {
     const { data, error } = await supabase
@@ -234,6 +257,18 @@ const AdminUpload = () => {
       window.clearTimeout(timeoutId);
     };
   }, [activeTab]);
+
+  useEffect(() => {
+    return () => {
+      if (paginationTimeoutRef.current) {
+        window.clearTimeout(paginationTimeoutRef.current);
+      }
+
+      if (noticiasPaginationTimeoutRef.current) {
+        window.clearTimeout(noticiasPaginationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const sectionEl = adminPageRef.current;
@@ -462,11 +497,47 @@ const AdminUpload = () => {
   const handlePublicationFilterChange = (event) => {
     const { name, value } = event.target;
     setPublicationFilters((prev) => ({ ...prev, [name]: value }));
+    setPaginaPublicaciones(1);
   };
 
   const handleNewsFilterChange = (event) => {
     const { name, value } = event.target;
     setNewsFilters((prev) => ({ ...prev, [name]: value }));
+    setPaginaNoticias(1);
+  };
+
+  const handlePublicacionesPageChange = (nextPage) => {
+    if (nextPage === paginaPublicacionesSegura) return;
+
+    if (paginationTimeoutRef.current) {
+      window.clearTimeout(paginationTimeoutRef.current);
+    }
+
+    setIsPaginatingPublicaciones(true);
+    paginationTimeoutRef.current = window.setTimeout(() => {
+      setPaginaPublicaciones(nextPage);
+      setIsPaginatingPublicaciones(false);
+      const topPosition = adminPageRef.current?.offsetTop ?? 0;
+      window.scrollTo({ top: topPosition, behavior: 'smooth' });
+      paginationTimeoutRef.current = null;
+    }, 170);
+  };
+
+  const handleNoticiasPageChange = (nextPage) => {
+    if (nextPage === paginaNoticiasSegura) return;
+
+    if (noticiasPaginationTimeoutRef.current) {
+      window.clearTimeout(noticiasPaginationTimeoutRef.current);
+    }
+
+    setIsPaginatingNoticias(true);
+    noticiasPaginationTimeoutRef.current = window.setTimeout(() => {
+      setPaginaNoticias(nextPage);
+      setIsPaginatingNoticias(false);
+      const topPosition = adminPageRef.current?.offsetTop ?? 0;
+      window.scrollTo({ top: topPosition, behavior: 'smooth' });
+      noticiasPaginationTimeoutRef.current = null;
+    }, 170);
   };
 
   const handleUpload = async (event, fileType) => {
@@ -898,9 +969,17 @@ const AdminUpload = () => {
                   <tr>
                     <td colSpan={5} className="admin-empty">No hay noticias que coincidan con los filtros.</td>
                   </tr>
+                ) : activeTab === 'publicaciones' && isPaginatingPublicaciones ? (
+                  <tr>
+                    <td colSpan={6} className="admin-empty">Cargando publicaciones...</td>
+                  </tr>
+                ) : activeTab === 'noticias' && isPaginatingNoticias ? (
+                  <tr>
+                    <td colSpan={5} className="admin-empty">Cargando noticias...</td>
+                  </tr>
                 ) : (
                   activeTab === 'publicaciones'
-                    ? filteredArticulos.map((item) => (
+                    ? publicacionesPaginadas.map((item) => (
                       <tr key={item.id}>
                         <td>
                           <img
@@ -962,7 +1041,7 @@ const AdminUpload = () => {
                         </td>
                       </tr>
                     ))
-                    : filteredNoticias.map((item) => (
+                    : noticiasPaginadas.map((item) => (
                       <tr key={item.id}>
                         <td>
                           <img
@@ -1027,6 +1106,92 @@ const AdminUpload = () => {
               </tbody>
             </table>
           </div>
+
+          {activeTab === 'publicaciones' && totalPaginasPublicaciones > 1 ? (
+            <div className="admin-table-pagination">
+              <div className="admin-table-pagination-track" aria-label="Paginación de publicaciones">
+                <button
+                  type="button"
+                  className="admin-table-page-btn admin-table-page-btn-nav"
+                  onClick={() => handlePublicacionesPageChange(Math.max(1, paginaPublicacionesSegura - 1))}
+                  disabled={paginaPublicacionesSegura === 1}
+                  aria-label="Ir a la página anterior"
+                >
+                  &lt;
+                </button>
+
+                {Array.from({ length: totalPaginasPublicaciones }, (_, index) => {
+                  const page = index + 1;
+                  const isActive = page === paginaPublicacionesSegura;
+
+                  return (
+                    <button
+                      key={page}
+                      type="button"
+                      className={`admin-table-page-btn ${isActive ? 'is-active' : ''}`}
+                      onClick={() => handlePublicacionesPageChange(page)}
+                      aria-current={isActive ? 'page' : undefined}
+                      aria-label={`Ir a la página ${page}`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  className="admin-table-page-btn admin-table-page-btn-nav"
+                  onClick={() => handlePublicacionesPageChange(Math.min(totalPaginasPublicaciones, paginaPublicacionesSegura + 1))}
+                  disabled={paginaPublicacionesSegura === totalPaginasPublicaciones}
+                  aria-label="Ir a la página siguiente"
+                >
+                  &gt;
+                </button>
+              </div>
+            </div>
+          ) : activeTab === 'noticias' && totalPaginasNoticias > 1 ? (
+            <div className="admin-table-pagination">
+              <div className="admin-table-pagination-track" aria-label="Paginación de noticias">
+                <button
+                  type="button"
+                  className="admin-table-page-btn admin-table-page-btn-nav"
+                  onClick={() => handleNoticiasPageChange(Math.max(1, paginaNoticiasSegura - 1))}
+                  disabled={paginaNoticiasSegura === 1}
+                  aria-label="Ir a la página anterior"
+                >
+                  &lt;
+                </button>
+
+                {Array.from({ length: totalPaginasNoticias }, (_, index) => {
+                  const page = index + 1;
+                  const isActive = page === paginaNoticiasSegura;
+
+                  return (
+                    <button
+                      key={page}
+                      type="button"
+                      className={`admin-table-page-btn ${isActive ? 'is-active' : ''}`}
+                      onClick={() => handleNoticiasPageChange(page)}
+                      aria-current={isActive ? 'page' : undefined}
+                      aria-label={`Ir a la página ${page}`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  className="admin-table-page-btn admin-table-page-btn-nav"
+                  onClick={() => handleNoticiasPageChange(Math.min(totalPaginasNoticias, paginaNoticiasSegura + 1))}
+                  disabled={paginaNoticiasSegura === totalPaginasNoticias}
+                  aria-label="Ir a la página siguiente"
+                >
+                  &gt;
+                </button>
+              </div>
+            </div>
+          ) : null}
         </section>
       </main>
 
