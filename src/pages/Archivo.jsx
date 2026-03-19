@@ -2,12 +2,15 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import './Archivo.css';
 
+const ITEMS_PER_PAGE = 8;
+
 const Archivo = () => {
   const [publicaciones, setPublicaciones] = useState([]);
   const [selectedPdf, setSelectedPdf] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [yearFilter, setYearFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [paginaActual, setPaginaActual] = useState(1);
   const archivoPageRef = useRef(null);
   const archivoCanvasRef = useRef(null);
 
@@ -50,6 +53,41 @@ const Archivo = () => {
       return matchesYear && matchesCategory && matchesQuery;
     });
   }, [publicaciones, searchQuery, yearFilter, categoryFilter]);
+
+  const totalPaginas = Math.ceil(filteredPublicaciones.length / ITEMS_PER_PAGE);
+  const paginaSegura = Math.min(paginaActual, Math.max(totalPaginas, 1));
+  const indiceInicio = (paginaSegura - 1) * ITEMS_PER_PAGE;
+  const publicacionesPaginadas = filteredPublicaciones.slice(indiceInicio, indiceInicio + ITEMS_PER_PAGE);
+  const rangoInicio = filteredPublicaciones.length === 0 ? 0 : indiceInicio + 1;
+  const rangoFin =
+    filteredPublicaciones.length === 0
+      ? 0
+      : Math.min(indiceInicio + publicacionesPaginadas.length, filteredPublicaciones.length);
+
+  const paginationItems = useMemo(() => {
+    if (totalPaginas <= 7) {
+      return Array.from({ length: totalPaginas }, (_, index) => index + 1);
+    }
+
+    const pages = [1];
+    const start = Math.max(2, paginaSegura - 1);
+    const end = Math.min(totalPaginas - 1, paginaSegura + 1);
+
+    if (start > 2) {
+      pages.push('ellipsis-left');
+    }
+
+    for (let page = start; page <= end; page += 1) {
+      pages.push(page);
+    }
+
+    if (end < totalPaginas - 1) {
+      pages.push('ellipsis-right');
+    }
+
+    pages.push(totalPaginas);
+    return pages;
+  }, [paginaSegura, totalPaginas]);
 
   useEffect(() => {
     const fetchPublicaciones = async () => {
@@ -203,6 +241,29 @@ const Archivo = () => {
     }
   };
 
+  const handlePageChange = (page) => {
+    if (page === paginaSegura) return;
+
+    setPaginaActual(page);
+    const topPosition = archivoPageRef.current?.offsetTop ?? 0;
+    window.scrollTo({ top: topPosition, behavior: 'smooth' });
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    setPaginaActual(1);
+  };
+
+  const handleYearChange = (event) => {
+    setYearFilter(event.target.value);
+    setPaginaActual(1);
+  };
+
+  const handleCategoryChange = (event) => {
+    setCategoryFilter(event.target.value);
+    setPaginaActual(1);
+  };
+
   return (
     <div className="archivo-page" ref={archivoPageRef}>
       <canvas className="archivo-network-canvas" ref={archivoCanvasRef} aria-hidden="true" />
@@ -222,7 +283,7 @@ const Archivo = () => {
               className="archivo-filter-input"
               type="text"
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
+              onChange={handleSearchChange}
               placeholder="Buscar boletines..."
               aria-label="Buscar boletines"
             />
@@ -230,7 +291,7 @@ const Archivo = () => {
             <select
               className="archivo-filter-select"
               value={yearFilter}
-              onChange={(event) => setYearFilter(event.target.value)}
+              onChange={handleYearChange}
               aria-label="Filtrar por año"
             >
               <option value="all">Todos los años</option>
@@ -244,7 +305,7 @@ const Archivo = () => {
             <select
               className="archivo-filter-select"
               value={categoryFilter}
-              onChange={(event) => setCategoryFilter(event.target.value)}
+              onChange={handleCategoryChange}
               aria-label="Filtrar por categoría"
             >
               <option value="all">Todas las categorías</option>
@@ -257,12 +318,12 @@ const Archivo = () => {
           </div>
 
           <p className="archivo-filter-results">
-            Mostrando {filteredPublicaciones.length} de {publicaciones.length} boletines
+            Mostrando {rangoInicio}-{rangoFin} de {filteredPublicaciones.length} boletines
           </p>
 
           <div className="archivo-content">
-            <div className="cards-container">
-              {filteredPublicaciones.map((item) => (
+            <div key={`pagina-${paginaSegura}`} className="cards-container cards-container-fade">
+              {publicacionesPaginadas.map((item) => (
                 <div key={item.id} className="card">
                   <div className="card-header">
                     <span className="card-category">{item.lex_categorias?.nombre || 'Sin categoría'}</span>
@@ -289,6 +350,67 @@ const Archivo = () => {
                 </div>
               ))}
             </div>
+
+            {totalPaginas > 1 && (
+              <nav className="archivo-pagination" aria-label="Paginación de archivo">
+                <div className="archivo-pagination-layout">
+                  <div className="archivo-pagination-track">
+                    <button
+                      type="button"
+                      className="archivo-page-btn archivo-page-btn-nav"
+                      onClick={() => handlePageChange(Math.max(1, paginaSegura - 1))}
+                      disabled={paginaSegura === 1}
+                      aria-label="Ir a la página anterior"
+                    >
+                      &lt;
+                    </button>
+
+                    {paginationItems.map((item) => {
+                      if (typeof item === 'string') {
+                        return (
+                          <button
+                            key={item}
+                            type="button"
+                            className="archivo-page-btn archivo-page-btn-ellipsis"
+                            disabled
+                            aria-hidden="true"
+                            tabIndex={-1}
+                          >
+                            ...
+                          </button>
+                        );
+                      }
+
+                      const isActive = item === paginaSegura;
+                      return (
+                        <button
+                          key={item}
+                          type="button"
+                          className={`archivo-page-btn archivo-page-btn-number ${isActive ? 'is-active' : ''}`}
+                          onClick={() => handlePageChange(item)}
+                          aria-current={isActive ? 'page' : undefined}
+                          aria-label={`Ir a la página ${item}`}
+                        >
+                          {item}
+                        </button>
+                      );
+                    })}
+
+                    <button
+                      type="button"
+                      className="archivo-page-btn archivo-page-btn-nav"
+                      onClick={() => handlePageChange(Math.min(totalPaginas, paginaSegura + 1))}
+                      disabled={paginaSegura === totalPaginas}
+                      aria-label="Ir a la página siguiente"
+                    >
+                      &gt;
+                    </button>
+                  </div>
+
+                  <p className="archivo-page-counter">Página {paginaSegura} de {totalPaginas}</p>
+                </div>
+              </nav>
+            )}
           </div>
         </div>
       </div>

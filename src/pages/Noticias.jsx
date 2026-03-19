@@ -18,12 +18,15 @@ const MONTH_OPTIONS = [
   { value: '11', label: 'Diciembre' }
 ];
 
+const NEWS_PER_PAGE = 8;
+
 const Noticias = () => {
   const [publicaciones, setPublicaciones] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [yearFilter, setYearFilter] = useState('all');
   const [monthFilter, setMonthFilter] = useState('all');
   const [selectedPdf, setSelectedPdf] = useState(null);
+  const [paginaActual, setPaginaActual] = useState(1);
   const noticiasPageRef = useRef(null);
   const noticiasCanvasRef = useRef(null);
 
@@ -58,6 +61,41 @@ const Noticias = () => {
       return matchesYear && matchesMonth && matchesQuery;
     });
   }, [publicaciones, searchQuery, yearFilter, monthFilter]);
+
+  const totalPaginas = Math.ceil(filteredPublicaciones.length / NEWS_PER_PAGE);
+  const paginaSegura = Math.min(paginaActual, Math.max(totalPaginas, 1));
+  const indiceInicio = (paginaSegura - 1) * NEWS_PER_PAGE;
+  const publicacionesPaginadas = filteredPublicaciones.slice(indiceInicio, indiceInicio + NEWS_PER_PAGE);
+  const rangoInicio = filteredPublicaciones.length === 0 ? 0 : indiceInicio + 1;
+  const rangoFin =
+    filteredPublicaciones.length === 0
+      ? 0
+      : Math.min(indiceInicio + publicacionesPaginadas.length, filteredPublicaciones.length);
+
+  const paginationItems = useMemo(() => {
+    if (totalPaginas <= 7) {
+      return Array.from({ length: totalPaginas }, (_, index) => index + 1);
+    }
+
+    const pages = [1];
+    const start = Math.max(2, paginaSegura - 1);
+    const end = Math.min(totalPaginas - 1, paginaSegura + 1);
+
+    if (start > 2) {
+      pages.push('ellipsis-left');
+    }
+
+    for (let page = start; page <= end; page += 1) {
+      pages.push(page);
+    }
+
+    if (end < totalPaginas - 1) {
+      pages.push('ellipsis-right');
+    }
+
+    pages.push(totalPaginas);
+    return pages;
+  }, [paginaSegura, totalPaginas]);
 
   useEffect(() => {
     const fetchPublicaciones = async () => {
@@ -213,6 +251,29 @@ const Noticias = () => {
     }
   };
 
+  const handlePageChange = (page) => {
+    if (page === paginaSegura) return;
+
+    setPaginaActual(page);
+    const topPosition = noticiasPageRef.current?.offsetTop ?? 0;
+    window.scrollTo({ top: topPosition, behavior: 'smooth' });
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    setPaginaActual(1);
+  };
+
+  const handleYearChange = (event) => {
+    setYearFilter(event.target.value);
+    setPaginaActual(1);
+  };
+
+  const handleMonthChange = (event) => {
+    setMonthFilter(event.target.value);
+    setPaginaActual(1);
+  };
+
   return (
     <div className="noticias-page" ref={noticiasPageRef}>
       <canvas className="noticias-network-canvas" ref={noticiasCanvasRef} aria-hidden="true" />
@@ -232,7 +293,7 @@ const Noticias = () => {
               className="noticias-filter-input"
               type="text"
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
+              onChange={handleSearchChange}
               placeholder="Buscar noticias por título..."
               aria-label="Buscar noticias por título"
             />
@@ -240,7 +301,7 @@ const Noticias = () => {
             <select
               className="noticias-filter-select"
               value={yearFilter}
-              onChange={(event) => setYearFilter(event.target.value)}
+              onChange={handleYearChange}
               aria-label="Filtrar noticias por año"
             >
               <option value="all">Todos los años</option>
@@ -254,7 +315,7 @@ const Noticias = () => {
             <select
               className="noticias-filter-select"
               value={monthFilter}
-              onChange={(event) => setMonthFilter(event.target.value)}
+              onChange={handleMonthChange}
               aria-label="Filtrar noticias por mes"
             >
               {MONTH_OPTIONS.map((month) => (
@@ -266,14 +327,15 @@ const Noticias = () => {
           </div>
 
           <p className="noticias-filter-results">
-            Mostrando {filteredPublicaciones.length} de {publicaciones.length} noticias
+            Mostrando {rangoInicio}-{rangoFin} de {filteredPublicaciones.length} noticias
           </p>
 
           {filteredPublicaciones.length === 0 ? (
             <div className="noticias-empty">No hay noticias registradas en este periodo.</div>
           ) : (
-            <section className="noticias-grid" aria-label="Listado de noticias">
-              {filteredPublicaciones.map((pub) => (
+            <>
+              <section key={`pagina-${paginaSegura}`} className="noticias-grid noticias-grid-fade" aria-label="Listado de noticias">
+                {publicacionesPaginadas.map((pub) => (
                 <article
                   key={pub.id}
                   className="noticia-grid-card"
@@ -305,8 +367,70 @@ const Noticias = () => {
                     </button>
                   </div>
                 </article>
-              ))}
-            </section>
+                ))}
+              </section>
+
+              {totalPaginas > 1 && (
+                <nav className="noticias-pagination" aria-label="Paginación de noticias">
+                  <div className="noticias-pagination-layout">
+                    <div className="noticias-pagination-track">
+                      <button
+                        type="button"
+                        className="noticias-page-btn noticias-page-btn-nav"
+                        onClick={() => handlePageChange(Math.max(1, paginaSegura - 1))}
+                        disabled={paginaSegura === 1}
+                        aria-label="Ir a la página anterior"
+                      >
+                        &lt;
+                      </button>
+
+                      {paginationItems.map((item) => {
+                        if (typeof item === 'string') {
+                          return (
+                            <button
+                              key={item}
+                              type="button"
+                              className="noticias-page-btn noticias-page-btn-ellipsis"
+                              disabled
+                              aria-hidden="true"
+                              tabIndex={-1}
+                            >
+                              ...
+                            </button>
+                          );
+                        }
+
+                        const isActive = item === paginaSegura;
+                        return (
+                          <button
+                            key={item}
+                            type="button"
+                            className={`noticias-page-btn noticias-page-btn-number ${isActive ? 'is-active' : ''}`}
+                            onClick={() => handlePageChange(item)}
+                            aria-current={isActive ? 'page' : undefined}
+                            aria-label={`Ir a la página ${item}`}
+                          >
+                            {item}
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        type="button"
+                        className="noticias-page-btn noticias-page-btn-nav"
+                        onClick={() => handlePageChange(Math.min(totalPaginas, paginaSegura + 1))}
+                        disabled={paginaSegura === totalPaginas}
+                        aria-label="Ir a la página siguiente"
+                      >
+                        &gt;
+                      </button>
+                    </div>
+
+                    <p className="noticias-page-counter">Página {paginaSegura} de {totalPaginas}</p>
+                  </div>
+                </nav>
+              )}
+            </>
           )}
         </div>
       </main>
