@@ -138,12 +138,14 @@
 }
 
 .about-hero-text {
+  font-family: 'Inter', sans-serif;
   color: rgba(232, 220, 196, 0.9);
   font-size: 0.92rem;
   line-height: 1.6;
   font-style: italic;
   margin: 0;
   max-width: 100%;
+  text-align: justify;
 }
 
 .page-header {
@@ -192,10 +194,12 @@
 }
 
 .about-text {
+  font-family: 'Inter', sans-serif;
   color: rgba(232, 220, 196, 0.8);
   font-size: 1.125rem;
   line-height: 1.8;
   margin-bottom: 1rem;
+  text-align: justify;
 }
 
 /* ========== MISSION & VISION CARDS ========== */
@@ -254,7 +258,7 @@
 
 .mv-title {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-size: 2rem;
   font-weight: 700;
   color: #E8DCC4;
   margin-bottom: 1.6rem;
@@ -265,11 +269,13 @@
 }
 
 .mv-text {
+  font-family: 'Inter', sans-serif;
   color: rgba(232, 220, 196, 0.75);
   font-size: 1.06rem;
   line-height: 1.45;
   margin: 0;
   max-width: 95%;
+  text-align: justify;
 }
 
 .mission-card .mv-title,
@@ -356,6 +362,7 @@
 }
 
 .feature-desc {
+  font-family: 'Inter', sans-serif;
   color: #334155;
   font-size: 0.95rem;
   line-height: 1.65;
@@ -456,6 +463,7 @@
 }
 
 .value-desc {
+  font-family: 'Inter', sans-serif;
   color: rgba(232, 220, 196, 0.7);
   font-size: 1rem;
   line-height: 1.6;
@@ -512,6 +520,7 @@
 }
 
 .team-role {
+  font-family: 'Inter', sans-serif;
   color: #c6a75e;
   font-size: 1.03rem;
   font-weight: 500;
@@ -527,6 +536,7 @@
 }
 
 .team-institution {
+  font-family: 'Inter', sans-serif;
   color: #3a4760;
   font-size: 1.02rem;
   margin: 0;
@@ -541,6 +551,7 @@
 }
 
 .team-description {
+  font-family: 'Inter', sans-serif;
   color: #1f2b46;
   font-size: 1rem;
   line-height: 1.55;

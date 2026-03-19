@@ -40,10 +40,12 @@
 
 .page-subtitle {
   margin-top: 0.95rem;
+  font-family: 'Inter', sans-serif;
   color: rgba(232, 220, 196, 0.9);
   font-size: 1.05rem;
   line-height: 1.7;
   max-width: 58rem;
+  text-align: left;
 }
 
 .page-header-divider {
@@ -105,6 +107,7 @@
   flex-direction: column;
   animation: fadeInUp 0.8s ease-out;
   animation-fill-mode: both;
+  height: 24.5rem;
 }
 
 .pub-cover {
@@ -138,18 +141,23 @@
 
 .pub-title {
   font-family: 'Playfair Display', serif;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #E8DCC4;
-  margin-bottom: 0.75rem;
-  line-height: 1.2;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.35;
+  /* ALTURA FIJA por LÍNEAS: font-size × line-height × líneas = 1.25 × 1.35 × 6 = 10.125rem */
+  /* Para cambiar a 5 líneas: cambiar min-height a 8.44rem y -webkit-line-clamp a 5 */
+  min-height: 10.125rem;  /* ← Ocupa espacio de 6 líneas completas */
   cursor: pointer;
   transition: color 0.3s;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 6;  /* ← LÍMITE: máximo 6 LÍNEAS (no caracteres) EDITA AQUÍ */
+  line-clamp: 6;         /* ← Soporte alternativo */
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;  /* ← Muestra ... al final */
+  word-break: break-word;  /* ← Envuelve palabras largas */
 }
 
 .pub-card:hover .pub-title {
@@ -157,6 +165,7 @@
 }
 
 .pub-author {
+  font-family: 'Inter', sans-serif;
   font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -166,6 +175,7 @@
 }
 
 .pub-date {
+  font-family: 'Inter', sans-serif;
   color: #C5A059;
   font-size: 0.625rem;
   font-weight: 900;
@@ -175,6 +185,7 @@
 }
 
 .pub-description {
+  font-family: 'Inter', sans-serif;
   color: rgba(232, 220, 196, 0.5);
   font-size: 0.875rem;
   line-height: 1.6;
@@ -274,12 +285,11 @@
   overflow: hidden;
   width: 100%;
   max-width: 320px;
+  height: 31.5rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
   align-items: stretch;
   border: 1px solid rgba(232, 220, 196, 0.1);
 }
@@ -325,43 +335,53 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 0.25rem;  /* ← Reducido de 8px a 0.25rem para menos espacio entre elementos */
   text-align: left;
+  flex-grow: 1;
 }
 
+
 .card-title {
-  font-size: 1.2rem; /* Ensure consistent title size */
-  font-weight: 700; /* Bold text for emphasis */
-  color: #E8DCC4; /* Match the color scheme */
-  margin-bottom: 1rem; /* Add spacing below the title */
-  line-height: 1.4; /* Set consistent line height */
-  max-height: none; /* Remove height restriction to prevent cutting off text */
-  overflow: visible; /* Allow text to display fully */
-  text-overflow: unset; /* Remove ellipsis */
-  display: block; /* Ensure proper block display */
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #E8DCC4;
+  margin: 0 0 0.25rem 0;  /* ← Reducido de 1rem a 0.25rem */
+  line-height: 1.35;
+  /* ALTURA FIJA por LÍNEAS: font-size × line-height × líneas = 1.25 × 1.35 × 6 = 10.125rem */
+  /* Para cambiar a 5 líneas: cambiar min-height a 8.44rem y -webkit-line-clamp a 5 */
+  min-height: 10.125rem;  /* ← Ocupa espacio de 6 líneas completas */
+  overflow: hidden;
+  text-overflow: ellipsis;  /* ← Muestra ... al final */
+  display: -webkit-box;
+  -webkit-line-clamp: 6;  /* ← LÍMITE: máximo 6 LÍNEAS (no caracteres) EDITA AQUÍ */
+  line-clamp: 6;         /* ← Soporte alternativo */
+  -webkit-box-orient: vertical;
+  word-break: break-word;  /* ← Envuelve palabras largas */
 }
 
 .card-author {
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: #b0b0b0;
   margin: 0;
-  margin-top: 1rem; /* Add spacing between the title and the authors */
 }
 
 .card-date {
-  margin-top: auto; /* Push the date to the bottom of the card */
-  font-size: 0.9rem; /* Adjust font size for better readability */
-  color: #E8DCC4; /* Match the color scheme */
-  text-align: left; /* Align the date to the left */
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: #E8DCC4;
+  text-align: left;
+  margin: 0 0 0.1rem 0;
 }
 
 .card-button {
   margin-top: auto;
-  align-self: center;
-  padding: 0.625rem 1.5rem;
-  font-size: 0.875rem;
+  align-self: flex-start;  /* ← Alineado a la IZQUIERDA */
+  padding: 0.55rem 0.9rem;  /* ← Poco espacio a izquierda/derecha del texto */
+  font-size: 0.75rem;
   transition: all 0.3s ease;
-  display: inline-block;
+  display: inline-block;  /* ← Solo el ancho necesario para el texto */
   color: #0B0332;
   font-weight: 700;
   letter-spacing: 0.05em;

@@ -1121,6 +1121,7 @@ const AdminUpload = () => {
               {modalModule === 'noticias' ? (
                 <label>
                   Resumen puntos (separa con coma o guion)
+                  <small style={{ color: '#C5A059', marginTop: '0.25rem', display: 'block', fontWeight: '600' }}>Recomendación: 4-6 puntos, máximo 80-100 caracteres por punto</small>
                   <textarea name="resumen_p" value={formData.resumen_p} onChange={handleFormChange} rows={2} />
                 </label>
               ) : null}

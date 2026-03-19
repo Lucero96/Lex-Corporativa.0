@@ -68,6 +68,7 @@ button {
 
 /* ========== COMMON COMPONENTS ========== */
 .section-label {
+  font-family: 'Inter', sans-serif;
   font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 3px;

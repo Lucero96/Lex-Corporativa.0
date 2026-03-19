@@ -50,6 +50,7 @@
 }
 
 .footer-description {
+  font-family: 'Inter', sans-serif;
   color: rgba(232, 220, 196, 0.6);
   font-size: 0.875rem;
   line-height: 1.6;
@@ -74,6 +75,7 @@
 }
 
 .footer-links li {
+  font-family: 'Inter', sans-serif;
   color: rgba(232, 220, 196, 0.6);
   font-size: 0.875rem;
   transition: color 0.3s;
@@ -112,6 +114,7 @@
   align-items: center;
   padding-top: 2rem;
   border-top: 1px solid rgba(232, 220, 196, 0.16);
+  font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
   color: rgba(232, 220, 196, 0.4);
   flex-wrap: wrap;

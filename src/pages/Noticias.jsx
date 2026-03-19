@@ -283,13 +283,13 @@ const Noticias = () => {
                 >
                   <div className="noticia-grid-overlay">
                     <p className="noticia-grid-date">Resumen {new Date(pub.fecha).toLocaleDateString()}</p>
+                    {/* LIMITAR TÍTULO A 4 LÍNEAS - Cambia "-webkit-line-clamp: 4" en Noticias.css para ajustar */}
                     <h2 className="noticia-grid-title">{pub.titulo}</h2>
                     <p className="noticia-grid-author">{pub.escritores || 'Lex Corporativa'}</p>
-                    <p className="noticia-grid-summary">{pub.resumen_p?.[0] || ''}</p>
 
-                    {Array.isArray(pub.resumen_p) && pub.resumen_p.length > 1 && (
+                    {Array.isArray(pub.resumen_p) && pub.resumen_p.length > 0 && (
                       <ul className="noticia-grid-points">
-                        {pub.resumen_p.slice(1, 3).map((punto, idx) => (
+                        {pub.resumen_p.map((punto, idx) => (
                           <li key={idx}>{punto}</li>
                         ))}
                       </ul>
