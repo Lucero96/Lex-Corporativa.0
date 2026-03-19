@@ -167,7 +167,7 @@ const Contacto = () => {
                     <div className="info-content">
                       <h4 className="info-title">Correo Electrónico</h4>
                       <p className="info-text">contacto@lexcorporativa.com</p>
-                      <p className="info-text">editorial@lexcorporativa.com</p>
+                     
                     </div>
                   </div>
 
@@ -180,7 +180,7 @@ const Contacto = () => {
                     </div>
                     <div className="info-content">
                       <h4 className="info-title">Teléfono</h4>
-                      <p className="info-text">+51 999 999 999</p>
+                      <p className="info-text">+51 960 118 562</p>
                       <p className="info-detail">Lunes a Viernes: 9:00 AM - 6:00 PM</p>
                     </div>
                   </div>
@@ -200,70 +200,18 @@ const Contacto = () => {
                     </div>
                   </div>
 
-                  {/* Bloques Destacados */}
-                  <div className="highlight-blocks">
-                    <div className="highlight-item">
-                      <h5 className="highlight-title">Envío de Artículos</h5>
-                      <p className="highlight-text">articulos@lexcorporativa.com</p>
-                    </div>
-                    <div className="highlight-item">
-                      <h5 className="highlight-title">Suscripciones</h5>
-                      <p className="highlight-text">newsletter@lexcorporativa.com</p>
-                    </div>
-                  </div>
+        
                 </div>
 
-                {/* Columna Derecha - Formulario */}
-                <div className="contact-form-column">
-                  <div className="form-card">
-                    <h3 className="form-title">Envíanos un Mensaje</h3>
-                    <form className="contact-form">
-                      <div className="form-group">
-                        <label htmlFor="nombre" className="form-label">Nombre Completo</label>
-                        <input 
-                          type="text" 
-                          id="nombre" 
-                          className="form-input" 
-                          placeholder="Tu nombre completo"
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label htmlFor="email" className="form-label">Correo Electrónico</label>
-                        <input 
-                          type="email" 
-                          id="email" 
-                          className="form-input" 
-                          placeholder="tu@email.com"
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label htmlFor="asunto" className="form-label">Asunto</label>
-                        <select id="asunto" className="form-select">
-                          <option value="">Selecciona un asunto</option>
-                          <option value="consulta">Consulta General</option>
-                          <option value="articulo">Envío de Artículo</option>
-                          <option value="colaboracion">Colaboración</option>
-                          <option value="suscripcion">Suscripción</option>
-                          <option value="otro">Otro</option>
-                        </select>
-                      </div>
-
-                      <div className="form-group">
-                        <label htmlFor="mensaje" className="form-label">Mensaje</label>
-                        <textarea 
-                          id="mensaje" 
-                          className="form-textarea" 
-                          rows="6"
-                          placeholder="Escribe tu mensaje aquí..."
-                        ></textarea>
-                      </div>
-
-                      <button type="submit" className="form-button btn-lex btn-lex-dark">
-                        Enviar Mensaje
-                      </button>
-                    </form>
+                {/* Columna Derecha - Imagen */}
+                <div className="contact-image-column">
+                  <div className="contact-image-card" aria-label="Imagen representativa de contacto">
+                    <img
+                      src="/assets/foto-principal.png"
+                      alt="Lex Corporativa - Contacto"
+                      className="contact-image"
+                      loading="lazy"
+                    />
                   </div>
                 </div>
               </div>

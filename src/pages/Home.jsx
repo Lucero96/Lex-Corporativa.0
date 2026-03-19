@@ -10,6 +10,12 @@ const Home = ({ onNavigate }) => {
     return 3;
   };
 
+  const navigateOnKeyDown = (event, page) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    onNavigate(page);
+  };
+
   const [ultimasNoticias, setUltimasNoticias] = useState([]);
   const [ultimosArchivos, setUltimosArchivos] = useState([]);
   const [archivoSlideIndex, setArchivoSlideIndex] = useState(0);
@@ -382,7 +388,16 @@ const Home = ({ onNavigate }) => {
 
           <div className="areas-grid">
             {legalAreas.map((area, index) => (
-              <div key={area.id} className="area-card" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div
+                key={area.id}
+                className="area-card"
+                style={{ animationDelay: `${index * 0.1}s` }}
+                role="button"
+                tabIndex={0}
+                onClick={() => onNavigate('archivo')}
+                onKeyDown={(event) => navigateOnKeyDown(event, 'archivo')}
+                aria-label={`Abrir archivo relacionado con ${area.title}`}
+              >
                 <h3 className="area-title">{area.title}</h3>
                 <p className="area-desc">{area.description}</p>
               </div>
@@ -426,7 +441,14 @@ const Home = ({ onNavigate }) => {
                 >
                   {ultimosArchivos.map((archivo) => (
                     <div key={archivo.id} className="carousel-slide">
-                      <article className="file-card file-card-featured">
+                      <article
+                        className="file-card file-card-featured"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onNavigate('archivo')}
+                        onKeyDown={(event) => navigateOnKeyDown(event, 'archivo')}
+                        aria-label={`Abrir archivo: ${archivo.titulo}`}
+                      >
                         <div className="file-card-image-wrap">
                           <img
                             className="file-card-image"
@@ -516,6 +538,11 @@ const Home = ({ onNavigate }) => {
                       <article
                         className="news-slide-card"
                         style={{ backgroundImage: `url(${news.imagen_url || 'https://placehold.co/900x420'})` }}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onNavigate('noticias')}
+                        onKeyDown={(event) => navigateOnKeyDown(event, 'noticias')}
+                        aria-label={`Abrir noticia: ${news.titulo}`}
                       >
                         <div className="news-slide-overlay">
                           <p className="news-slide-date">Resumen {new Date(news.fecha).toLocaleDateString()}</p>
