@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import AdminUpload from './pages/AdminUpload'
 import Login from './pages/Login'
+import ProtectedRoute from './components/ProtectedRoute'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -12,8 +13,8 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/panel-admin" element={<AdminUpload />} />
-        <Route path="/admin-upload" element={<AdminUpload />} />
+        <Route path="/panel-admin" element={<ProtectedRoute><AdminUpload /></ProtectedRoute>} />
+        <Route path="/admin-upload" element={<ProtectedRoute><AdminUpload /></ProtectedRoute>} />
       </Routes>
     </Router>
   </StrictMode>,

@@ -1,3 +1,37 @@
+# Lex Corporativa - Website
+
+Plataforma web corporativa de Lex con gestión de noticias y artículos.
+
+## ⚡ Setup rápido
+
+### 1. Instalar dependencias
+```bash
+npm install
+```
+
+### 2. Configurar variables de entorno
+
+**Copia `.env.example` a `.env.local`:**
+```bash
+cp .env.example .env.local
+```
+
+**Edita `.env.local` con tus credenciales Supabase:**
+```
+VITE_SUPABASE_URL=https://your-supabase-url.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key_here
+```
+
+⚠️ **Importante:** `.env.local` está en `.gitignore` - nunca se sube a GitHub
+
+### 3. Iniciar desarrollo
+```bash
+npm run dev
+```
+Abre `http://localhost:5173`
+
+---
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
