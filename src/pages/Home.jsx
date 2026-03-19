@@ -547,7 +547,6 @@ const Home = ({ onNavigate }) => {
                         <div className="news-slide-overlay">
                           <p className="news-slide-date">Resumen {new Date(news.fecha).toLocaleDateString()}</p>
                           <h3 className="news-slide-title">{news.titulo}</h3>
-                          <p className="news-slide-summary">{news.resumen || 'Sin resumen disponible.'}</p>
                           {Array.isArray(news.resumen_puntos) && news.resumen_puntos.length > 0 && (
                             <ul className="news-slide-points">
                               {news.resumen_puntos.slice(0, 3).map((punto, idx) => (

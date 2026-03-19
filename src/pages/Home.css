@@ -653,7 +653,8 @@
   padding: 1rem 0.95rem 1.1rem;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;  /* ← Centra contenido en la MITAD del card */
+  align-items: flex-start;  /* ← Alineado a la izquierda */
 }
 
 .news-slide-date {
@@ -664,6 +665,8 @@
   text-transform: uppercase;
   color: rgba(232, 220, 196, 0.92);
   font-weight: 700;
+  margin-top: 5rem;  /* ← AQUÍ: Cambia este valor para mover más abajo */
+
 }
 
 .news-slide-title {
@@ -673,6 +676,12 @@
   font-weight: 700;
   line-height: 1.2;
   color: #ffffff;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;  /* ← LÍMITE: Máximo 3 LÍNEAS */
+  line-clamp: 3;         /* ← Soporte alternativo */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;  /* ← Muestra ... al final */
 }
 
 .news-slide-summary {
