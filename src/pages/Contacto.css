@@ -71,7 +71,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* Columna Izquierda - Información */
@@ -190,6 +190,31 @@
   top: 6rem;
 }
 
+.contact-image-column {
+  position: sticky;
+  top: 6rem;
+  align-self: stretch;
+}
+
+.contact-image-card {
+  background: linear-gradient(145deg, #101c42 0%, #102a5a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: 0 10px 30px rgba(13, 35, 79, 0.35);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+}
+
+.contact-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+
 .form-card {
   background: linear-gradient(145deg, #101c42 0%, #102a5a 100%);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -288,6 +313,41 @@
   transform: translateY(0);
 }
 
+.form-status {
+  margin: 0 0 1.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.form-status-success {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.form-status-error {
+  border-color: rgba(248, 113, 113, 0.65);
+  background: rgba(248, 113, 113, 0.12);
+}
+
+.form-status-loading {
+  border-color: rgba(197, 160, 89, 0.65);
+  background: rgba(197, 160, 89, 0.14);
+}
+
+.contact-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* ========== ANIMATIONS ========== */
 @keyframes fadeInUp {
   from {
@@ -338,6 +398,10 @@
   }
 
   .contact-form-column {
+    position: static;
+  }
+
+  .contact-image-column {
     position: static;
   }
 
